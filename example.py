@@ -1,4 +1,8 @@
-from cameras import Camera
+from pseyepy import Camera, Live
+
+cam = Camera([0,1], resolution=Camera.RES_LARGE, fps=60)
+
+l = Live(cam=cam)
 
 # things to include:
 # setting bulk params

@@ -1,2 +1,5 @@
+After years of hacking together many projects using various iterations of different camera acquisition strategies, I'm attempting to improve and consolidate the PS3Eye functionality into a single, *simple*, decently high-performance package.
 
-Driver API adapted from the excellent PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver)
+Abandoning the CLEye driver entirely, I'm using a C++-based driver API I've adapted from the excellent PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver).
+
+deverett [at] princeton [dot] edu
