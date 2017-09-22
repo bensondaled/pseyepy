@@ -4,6 +4,7 @@
 from libcpp cimport bool
 import atexit
 import warnings
+import time
 import numpy as np
 
 # PS3EYE API definitions
@@ -93,13 +94,28 @@ class Camera():
                 PS3EYE_HFLIP:               ('hflip',          [True, False]),
                 PS3EYE_VFLIP:               ('vflip',          [True, False]),
             }
-    def __init__(self, ids):
+
+    RES_SMALL = 0
+    RES_LARGE = 1
+    _RESOLUTION = { RES_SMALL:(320,240),
+                    RES_LARGE:(640,480) }
+    def __init__(self, ids, resolution=RES_SMALL, fps=60, color=True):
         
         if isinstance(ids, (int, float, long)):
             ids = [ids]
         elif isinstance(ids, (tuple, np.ndarray)):
             ids = list(ids)
         self.ids = ids
+
+        self.resolution = self._RESOLUTION[resolution]
+        self.w, self.h = self.resolution
+        self.fps = fps
+        if color:
+            self.format = PS3EYE_FORMAT_RGB
+            self.depth = 3
+        else:
+            self.format = PS3EYE_FORMAT_RGB # need to implement greyscale properly
+            self.depth = 3 # will be 1 when implemented properly
 
         # init context
         ps3eye_init()
@@ -112,27 +128,44 @@ class Camera():
                 ps3eye_uninit()
                 raise Exception('No camera available at index {}.\nAvailable cameras: {}'.format(_id, count))
             else:
-                success = ps3eye_open(_id, 640, 480, 15, PS3EYE_FORMAT_RGB)
+                success = ps3eye_open(_id, self.w, self.h, self.fps, self.format)
                 if not success:
                     raise Exception('Camera at index {} failed to initialize.'.format(_id))
-                self.buffers[_id] = np.bytes_(640*480*3)
+                self.buffers[_id] = np.bytes_(self.w*self.h*self.depth)
 
         # params
         for pconst,(pname,valid) in self._PARAMS.items():
             setattr(self, pname, CtrlList([ps3eye_get_parameter(i, pconst) for i in self.ids], param_id=pconst))
 
+        self._ended = False
         atexit.register(self.end)
 
     def read(self):
+        """Read a frame from each camera
+        """
         imgs = []
         for _id in self.ids:
             ps3eye_grab_frame(_id, self.buffers[_id])
             img = np.frombuffer(self.buffers[_id], dtype=self.FRAME_DTYPE)
-            imgs.append(img)
+            imgs.append(img.reshape([self.h, self.w, self.depth]))
         return imgs
 
+    def check_fps(self):
+        """Empirical measurement of frame rate in frames per second
+        """
+        dts = []
+        for i in range(100):
+            t0 = time.time()
+            self.read()
+            dts.append(time.time()-t0)
+        return 1/np.mean(dts)
+
     def end(self):
-        for _id in self.ids:
-            ps3eye_close(_id)
-        ps3eye_uninit()
+        """Close object
+        """
+        if not self._ended:
+            for _id in self.ids:
+                ps3eye_close(_id)
+            ps3eye_uninit()
+            self._ended = True
 

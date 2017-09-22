@@ -59,9 +59,7 @@ struct ps3eye_t {
     {
         eye->init(width, height, (uint8_t)fps, (ps3eye::PS3EYECam::EOutputFormat)outputFormat);
         eye->start();
-        std::cout << "id: " << id << "\n";
         ps3eye_context->opened_devices[id] = this;
-        std::cout << "nopen: " << ps3eye_context->opened_devices.size() << "\n";
     }
 
     ~ps3eye_t()
