@@ -1,8 +1,10 @@
 from pseyepy import Camera, Live
 
+# example 1: main process, simple camera view
 cam = Camera([0,1], resolution=Camera.RES_LARGE, fps=60)
-
 l = Live(cam=cam)
+
+# example 2: camera as a process
 
 # things to include:
 # setting bulk params

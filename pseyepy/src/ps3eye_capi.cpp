@@ -36,7 +36,7 @@
 
 struct ps3eye_context_t {
     ps3eye_context_t()
-        : devices(ps3eye::PS3EYECam::getDevices())
+        : devices(ps3eye::PS3EYECam::getDevices(true)) // true for forceRefresh
         , opened_devices()
     {
     }

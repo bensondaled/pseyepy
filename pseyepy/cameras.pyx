@@ -1,11 +1,13 @@
 # distutils: language=c++
 
 # imports
-from libcpp cimport bool
+from libcpp cimport bool as cbool
 import atexit
 import warnings
 import time
 import numpy as np
+import multiprocessing as mp
+import threading
 
 # PS3EYE API definitions
 cdef extern from "ps3eye_capi.h":
@@ -37,7 +39,7 @@ cdef extern from "ps3eye_capi.h":
                                         char *out_identifier,
                                         int max_identifier_length )
 
-    bool ps3eye_open(   int id, 
+    cbool ps3eye_open(   int id, 
                         int width, 
                         int height, 
                         int fps, 
@@ -100,22 +102,41 @@ class Camera():
     _RESOLUTION = { RES_SMALL:(320,240),
                     RES_LARGE:(640,480) }
     def __init__(self, ids, resolution=RES_SMALL, fps=60, color=True):
-        
+
         if isinstance(ids, (int, float, long)):
             ids = [ids]
         elif isinstance(ids, (tuple, np.ndarray)):
             ids = list(ids)
         self.ids = ids
 
-        self.resolution = self._RESOLUTION[resolution]
-        self.w, self.h = self.resolution
+        if isinstance(resolution, (int, float, long)):
+            resolution = [self._RESOLUTION[resolution]] * len(self.ids)
+        elif isinstance(resolution, (tuple, list, np.ndarray)):
+            assert len(resolution) == len(self.ids)
+            assert all([isinstance(r, (int, float, long)) for r in resolution])
+            resolution = [self._RESOLUTION[r] for r in resolution]
+        self.resolution = resolution
+        self.w, self.h = zip(*self.resolution)
+
+        if isinstance(fps, (int, float, long)):
+            fps = [fps] * len(self.ids)
+        elif isinstance(fps, (tuple, list, np.ndarray)):
+            assert len(fps) == len(self.ids)
+            assert all([isinstance(f, (int, float, long)) for f in fps])
         self.fps = fps
-        if color:
-            self.format = PS3EYE_FORMAT_RGB
-            self.depth = 3
+
+        if isinstance(color, bool):
+            color = [color] * len(self.ids)
+        elif isinstance(color, (tuple, list, np.ndarray)):
+            assert len(color) == len(self.ids)
+            assert all([isinstance(c, bool) for c in color])
         else:
-            self.format = PS3EYE_FORMAT_RGB # need to implement greyscale properly
-            self.depth = 3 # will be 1 when implemented properly
+            raise Exception('Color mode not understood, should be True or False.')
+        self.color = color
+        self.format = [PS3EYE_FORMAT_RGB if c else PS3EYE_FORMAT_RGB for c in self.color] # else should be GREY, when implemented
+        self.depth = [3 if c else 3 for c in self.color] # 2nd 3 will be 1 when grey is implemented
+
+        self.shape = [(y,x,d) for y,x,d in zip(self.h, self.w, self.depth)]
 
         # init context
         ps3eye_init()
@@ -123,15 +144,15 @@ class Camera():
         # init all cameras
         count = ps3eye_count_connected()
         self.buffers = {}
-        for _id in self.ids:
+        for idx,_id in enumerate(self.ids):
             if _id >= count:
                 ps3eye_uninit()
                 raise Exception('No camera available at index {}.\nAvailable cameras: {}'.format(_id, count))
             else:
-                success = ps3eye_open(_id, self.w, self.h, self.fps, self.format)
+                success = ps3eye_open(_id, self.w[idx], self.h[idx], self.fps[idx], self.format[idx])
                 if not success:
                     raise Exception('Camera at index {} failed to initialize.'.format(_id))
-                self.buffers[_id] = np.bytes_(self.w*self.h*self.depth)
+                self.buffers[_id] = np.bytes_(self.w[idx]*self.h[idx]*self.depth[idx])
 
         # params
         for pconst,(pname,valid) in self._PARAMS.items():
@@ -144,10 +165,10 @@ class Camera():
         """Read a frame from each camera
         """
         imgs = []
-        for _id in self.ids:
+        for idx,_id in enumerate(self.ids):
             ps3eye_grab_frame(_id, self.buffers[_id])
             img = np.frombuffer(self.buffers[_id], dtype=self.FRAME_DTYPE)
-            imgs.append(img.reshape([self.h, self.w, self.depth]))
+            imgs.append(img.reshape(self.shape[idx]))
         return imgs
 
     def check_fps(self):
@@ -168,4 +189,31 @@ class Camera():
                 ps3eye_close(_id)
             ps3eye_uninit()
             self._ended = True
+    
+class CameraStream(Camera, threading.Thread):
+    """A lightweight descendant of the Camera class which simply continually streams frames into a multiprocess-safe buffer
+    """
+    def __init__(self, *args, **kwargs):
+        
+        Camera.__init__(self, *args, **kwargs)
+        threading.Thread.__init__(self)
+
+        self.que = mp.Queue()
+        self.kill = False
+        self.dead = False
+
+        self.start()
+
+    def run(self):
+
+        while not self.kill:
+            frm = self.read()
+            self.que.put(frm)
+        self.dead = True
+    
+    def end(self):
+        self.kill = True
+        while not self.dead:
+            pass
+        Camera.end(self)
 
