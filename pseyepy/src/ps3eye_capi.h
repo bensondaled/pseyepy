@@ -58,6 +58,7 @@ typedef enum{
 	PS3EYE_FORMAT_BAYER,        // Output in Bayer. Destination buffer must be width * height bytes
 	PS3EYE_FORMAT_BGR,          // Output in BGR. Destination buffer must be width * height * 3 bytes
 	PS3EYE_FORMAT_RGB,          // Output in RGB. Destination buffer must be width * height * 3 bytes
+	PS3EYE_FORMAT_GRAY,        // Output in Grey. Destination buffer must be width * height bytes
 } ps3eye_format;
 
 

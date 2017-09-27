@@ -1,16 +1,14 @@
-from pseyepy import Camera, Live
+##
 
-# example 1: main process, simple camera view
-cam = Camera([0,1], resolution=Camera.RES_LARGE, fps=60)
-l = Live(cam=cam)
+from pseyepy import Camera, Display, Stream
 
-# example 2: camera as a process
+# init a camera
+c = Camera([0,1], fps=60, resolution=Camera.RES_LARGE, color=False)
 
-# things to include:
-# setting bulk params
+# live display the camera
+d = Display(c)
 
-## todo:
-# allow init to take kwargs for all params
-# fix autoexposure
-# implement all control of framerate, color, and size
-# allow different resolutions, color modes, framerates per cam
+# save to file
+s = Stream(c, file_name='example_movie.avi')
+
+##

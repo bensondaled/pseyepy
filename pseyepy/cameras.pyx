@@ -16,6 +16,7 @@ cdef extern from "ps3eye_capi.h":
         PS3EYE_FORMAT_BAYER
         PS3EYE_FORMAT_RGB
         PS3EYE_FORMAT_BGR
+        PS3EYE_FORMAT_GRAY
     ctypedef enum ps3eye_parameter: 
         PS3EYE_AUTO_GAIN,           # [false, true]
         PS3EYE_GAIN,                # [0, 63]
@@ -133,10 +134,10 @@ class Camera():
         else:
             raise Exception('Color mode not understood, should be True or False.')
         self.color = color
-        self.format = [PS3EYE_FORMAT_RGB if c else PS3EYE_FORMAT_RGB for c in self.color] # else should be GREY, when implemented
-        self.depth = [3 if c else 3 for c in self.color] # 2nd 3 will be 1 when grey is implemented
+        self.format = [PS3EYE_FORMAT_RGB if c else PS3EYE_FORMAT_GRAY for c in self.color]
+        self.depth = [3 if c else 1 for c in self.color] # 2nd 3 will be 1 when grey is implemented
 
-        self.shape = [(y,x,d) for y,x,d in zip(self.h, self.w, self.depth)]
+        self.shape = [(y,x,d) if d>1 else (y,x) for y,x,d in zip(self.h, self.w, self.depth)]
 
         # init context
         ps3eye_init()
@@ -189,31 +190,3 @@ class Camera():
                 ps3eye_close(_id)
             ps3eye_uninit()
             self._ended = True
-    
-class CameraStream(Camera, threading.Thread):
-    """A lightweight descendant of the Camera class which simply continually streams frames into a multiprocess-safe buffer
-    """
-    def __init__(self, *args, **kwargs):
-        
-        Camera.__init__(self, *args, **kwargs)
-        threading.Thread.__init__(self)
-
-        self.que = mp.Queue()
-        self.kill = False
-        self.dead = False
-
-        self.start()
-
-    def run(self):
-
-        while not self.kill:
-            frm = self.read()
-            self.que.put(frm)
-        self.dead = True
-    
-    def end(self):
-        self.kill = True
-        while not self.dead:
-            pass
-        Camera.end(self)
-

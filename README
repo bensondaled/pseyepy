@@ -1,5 +1,14 @@
-After years of hacking together many projects using various iterations of different camera acquisition strategies, I'm attempting to improve and consolidate the PS3Eye functionality into a single, *simple*, decently high-performance package.
+A simple interface for acquisition and saving of video from the PS3Eye camera.
 
-Abandoning the CLEye driver entirely, I'm using a C++-based driver API I've adapted from the excellent PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver).
+This package is based on open-source libraries compatible with macOS, Windows, and Linux:
+    * libusb
+    * PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver)
+    * ffmpeg
+
+TODO:
+    * generalize paths for installation (libusb, c compilers), ffmpeg
+    * explore auto-exposure settings, which is acting funky
+    * attempt to fork the core camera class into a separate process (is proving harder than expected)
+    * documentation
 
 deverett [at] princeton [dot] edu
