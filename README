@@ -2,13 +2,14 @@ A simple interface for acquisition and saving of video from the PS3Eye camera.
 
 This package is based on open-source libraries compatible with macOS, Windows, and Linux:
     * libusb
-    * PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver)
+    * [a modified version of the] PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver)
     * ffmpeg
 
 TODO:
     * generalize paths for installation (libusb, c compilers), ffmpeg
     * explore auto-exposure settings, which is acting funky
     * attempt to fork the core camera class into a separate process (is proving harder than expected)
+    * incorporate timestamps
     * documentation
 
 deverett [at] princeton [dot] edu
