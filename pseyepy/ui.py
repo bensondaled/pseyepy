@@ -43,7 +43,7 @@ class Display(tk.Frame):
         if self.cvs is None:
             self.cvs = [] # canvas, canvas_img, photo_img
 
-            imgs = self.grab()
+            imgs,ts = self.grab()
             if imgs is None:
                 self.end()
                 return
@@ -58,7 +58,7 @@ class Display(tk.Frame):
                 self.cvs.append([canvas, cvs_im, photo])
 
         # all iterations
-        imgs = self.grab()
+        imgs,ts = self.grab()
         for im,cv in zip(imgs, self.cvs):
             cv[-1] = ImageTk.PhotoImage(image=Image.fromarray(im))
             cv[0].itemconfig(cv[1], image=cv[-1])

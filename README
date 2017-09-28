@@ -8,8 +8,7 @@ This package is based on open-source libraries compatible with macOS, Windows, a
 TODO:
     * generalize paths for installation (libusb, c compilers), ffmpeg
     * explore auto-exposure settings, which is acting funky
-    * attempt to fork the core camera class into a separate process (is proving harder than expected)
-    * incorporate timestamps
+    * build a multithreaded cython option for camera streaming to free the main process
     * documentation
 
 deverett [at] princeton [dot] edu

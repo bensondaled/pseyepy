@@ -1,6 +1,5 @@
 # distutils: language=c++
 
-# imports
 from libcpp cimport bool as cbool
 import atexit
 import warnings
@@ -51,7 +50,6 @@ cdef extern from "ps3eye_capi.h":
     int ps3eye_get_parameter(int id, ps3eye_parameter param)
     int ps3eye_set_parameter(int id, ps3eye_parameter param, int value)
 
-# Python API
 def cam_count():
     ps3eye_init()
     n = ps3eye_count_connected()
@@ -162,15 +160,19 @@ class Camera():
         self._ended = False
         atexit.register(self.end)
 
-    def read(self):
+    def read(self, timestamp=True):
         """Read a frame from each camera
         """
-        imgs = []
+        imgs,ts = [],[]
         for idx,_id in enumerate(self.ids):
             ps3eye_grab_frame(_id, self.buffers[_id])
             img = np.frombuffer(self.buffers[_id], dtype=self.FRAME_DTYPE)
+            ts.append((time.clock(), time.time()))
             imgs.append(img.reshape(self.shape[idx]))
-        return imgs
+        if timestamp:
+            return (imgs, ts)
+        else:
+            return imgs
 
     def check_fps(self):
         """Empirical measurement of frame rate in frames per second
@@ -190,3 +192,4 @@ class Camera():
                 ps3eye_close(_id)
             ps3eye_uninit()
             self._ended = True
+
