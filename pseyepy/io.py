@@ -83,6 +83,8 @@ class FFMpegWriter():
     def write(self, frame, timestamp=None):
         self.proc.stdin.write(frame.tobytes())
         if self.timestamps:
+            if isinstance(timestamp, (tuple,list,np.ndarray)):
+                timestamp = ','.join(['{:0.15f}']*len(timestamp)).format(*timestamp)
             self.ts_file.write('{}\n'.format(timestamp))
 	
     def end(self):
@@ -119,8 +121,8 @@ class Writer(mp.Process):
                 data,ts = self.que.get(block=False)
 
                 assert len(data) == len(ffmpws), 'Param and cam count mismatch'
-                for dat,ff in zip(data, ffmpws):
-                    ff.write(dat, timestamp=ts)
+                for dat,t,ff in zip(data, ts, ffmpws):
+                    ff.write(dat, timestamp=t)
 
             except queue.Empty:
                 pass

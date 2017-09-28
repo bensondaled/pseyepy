@@ -10,5 +10,6 @@ TODO:
     * explore auto-exposure settings, which is acting funky
     * build a multithreaded cython option for camera streaming to free the main process
     * documentation
+    * benchmarks, performance tests
 
 deverett [at] princeton [dot] edu
