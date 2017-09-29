@@ -4,8 +4,7 @@ Features:
     * stream simultaneously from as many cameras as you have available usb ports
     * frame rates from arbitrarily low to 125+ fps
     * resolutions 640x480 or 320x240
-    * control of camera settings include gain, exposure, whitebalance, hue, brightness, contrast, flips, etc.
-    * independent control of all parameters for each camera
+    * control of camera settings include gain, exposure, white balance, hue, brightness, contrast, flips, etc.
     * high-resolution timestamps
     * simple gui for real-time video display
     * save movies to file/s
@@ -16,16 +15,16 @@ This package is based on all open-source libraries compatible with macOS, Window
     * ffmpeg (only needed for saving movies)
 
 TODO:
-    * crucial: run threads for Camera.read to allow for different framerates across cameras
-    * crucial: CtrlList currently makes an assumption about the alignment of id's and positions in id list; need to de-couple those
     * for stream saving: implement strict match between frame count and timestamp count
     * generalize paths for installation (libusb, c compilers), ffmpeg
-    * explore auto-exposure settings, which is acting funky
-    * protect unacceptable attribute setting in Camera class, also allow slice (:) setting
+    * explore auto-exposure setting, which is acting funky
+    * more documentation
+    * benchmarks, performance tests (including n_in n_out counts)
     * build a multithreaded cython option for camera streaming to free the main process
     * simultaneous display/saving?
-    * documentation
-    * benchmarks, performance tests
-    * benchmark timestamps again (try to replicate the scenario where they were lagging; though seems not to happen anymore)
+
+Working notes for documentation:
+* The PSEye camera has two LED indicators: a blue light indicating power, and a red light indiciating communication with the computer.
+* If the cameras or API act strangely, try disconnecting and reconnecting the cameras, restarting the Python shell, and running the program again.
 
 deverett [at] princeton [dot] edu

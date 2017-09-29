@@ -32,7 +32,7 @@ class Stream():
                 file_name = file_name[i],
                 shape = self.cam.resolution[i],
                 fps = self.cam.fps[i],
-                color = self.cam.color[i],
+                colour = self.cam.colour[i],
                 ) for i in range(len(self.cam.ids)) ]
 
         self.que = mp.Queue()
@@ -47,7 +47,7 @@ class Stream():
 class FFMpegWriter():
     """Pipes to a video file using ffmpeg on command
     """
-    def __init__(self, file_name, shape=(320,240), color=False, fps=30, timestamps=False):
+    def __init__(self, file_name, shape=(320,240), colour=False, fps=30, timestamps=False):
         """
         shape : w,h
         """
@@ -63,7 +63,7 @@ class FFMpegWriter():
             self.ts_file_name = '{}_time.txt'.format(fnroot)
             self.ts_file = open(self.ts_file_name, 'a')
 
-        _col = 'rgb24' if color else 'gray'
+        _col = 'rgb24' if colour else 'gray'
         _shape = '{}x{}'.format(*shape)
         _fps = str(int(fps))
 

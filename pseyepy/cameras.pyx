@@ -53,31 +53,91 @@ cdef extern from "ps3eye_capi.h":
     int ps3eye_set_parameter(int id, ps3eye_parameter param, int value)
 
 def cam_count():
+    """Count number of available cameras
+    """
     ps3eye_init()
     n = ps3eye_count_connected()
     ps3eye_uninit()
     return n
 
 class CtrlList(list):
-    def __init__(self, *args, param_id=None, **kwargs):
+    """A subclass of list used to control the parameters on board the cameras
+
+    One CtrlList is made per parameter, where each element refers to the current value of this parameter for camera `i`.
+
+    This class is used internally in the Camera class and has no user-intended uses.
+    """
+    def __init__(self, *args, param_id=None, ids=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.param_id = param_id
+        self.ids = ids
         self.nm,self.valid = Camera._PARAMS[self.param_id]
     def __setitem__(self, pos, val):
+
+        # invalid parameter supplied
         if val not in self.valid:
             warnings.warn('\nParameter adjustment for {name} aborted.\nAllowed values for {name}: {valid}\nRequested value: {req}'.format(name=self.nm, valid=self.valid, req=val))
             return
-        ps3eye_set_parameter(pos, self.param_id, val)
-        conf = ps3eye_get_parameter(pos, self.param_id)
-        if conf != val:
-            warnings.warn('\nParameter adjustment for {name} failed.\nAllowed values for {name}: {valid}\nRequested value: {req}'.format(name=self.nm, valid=self.valid, req=val))
-            return
-        super().__setitem__(pos, val)
+
+        # allow the use of integers, lists, and slices for setting elements of the CtrlList
+        if isinstance(pos, int):
+            pos = [pos]
+        elif isinstance(pos, (list, np.ndarray, tuple)):
+            assert all([isinstance(i,int) for i in pos]), 'All requested indices must be integers.'
+        elif isinstance(pos, slice):
+            start = pos.start or 0
+            stop = pos.stop or len(self)
+            step = pos.step or 1
+            pos = range(start, stop, step)
+        _pos = pos
+
+        for pos in _pos:
+            # set the parameters on the camera
+            ps3eye_set_parameter(self.ids[pos], self.param_id, val)
+
+            # confirm that the parameters changed by reading them back out
+            conf = ps3eye_get_parameter(self.ids[pos], self.param_id)
+            if conf != val:
+                warnings.warn('\nParameter adjustment for "{name}" failed.\nMaybe you supplied an invalid value?\nAllowed values for "{name}": {valid}\nRequested value: {req}\nCurrent value: {cur}'.format(name=self.nm, valid=self.valid, req=val, cur=conf))
+                return
+            
+            # set the list items so they can be viewed, queried
+            super().__setitem__(pos, val)
+
+def _getattr_wrapper(name):
+    def result(obj):
+        return getattr(obj, name)
+    return result
+
+def _noset(name):
+    def result(obj, val):
+        raise Exception('Attribute "{}" cannot be changed after Camera is initialized. Action aborted.'.format(name))
+    return result
+
+def _setattr_wrapper(name):
+    def result(obj, val):
+        cl = getattr(obj, name)
+        
+        if isinstance(val, (bool, long, float, int)):
+            # attributes are always CtrlLists, so an attempt to set them with a scalar means that all elements of the list should be set to this one value
+            cl[:] = val
+        elif isinstance(val, (list, np.ndarray, tuple)):
+            # an iterable can be used to set the attributes if and only if it matches the number of cameras exactly
+            if len(val) != len(cl):
+                raise Exception('Length of "{}" input ({}) does not match necessary length ({}). Action aborted.'.format(name, len(val), len(cl)))
+            for i,v in enumerate(val):
+                cl[i] = v
+        elif val in [None]:
+            warnings.warn('Attribute "{}" cannot be set to None. Action aborted.'.format(name[1:]))
+        else:
+            warnings.warn('Requested value for attribute "{}" not understood. Action aborted.'.format(name[1:]))
+    return result
 
 class Camera():
+    """Controller for an arbitrary number of PSEye cameras
     """
-    cam.gain[1] = 42
-    """
+
+    # class constants
     FRAME_DTYPE = np.uint8
 
     _PARAMS = { 
@@ -102,42 +162,81 @@ class Camera():
     RES_LARGE = 1
     _RESOLUTION = { RES_SMALL:(320,240),
                     RES_LARGE:(640,480) }
-    def __init__(self, ids, resolution=RES_SMALL, fps=60, color=True):
+
+    def __init__(self, ids=None, resolution=RES_SMALL, fps=60, colour=True, **kwargs):
+        """Initialize a new Camera object to control one or many PSEye cameras
+
+        Parameters
+        ----------
+        ids : int-like / list-like
+            ID number/s of cameras to be initialized. All cameras must be handled by a single Camera object
+            Example: [0,1]
+            Defaults to all connected cameras
+        resolution : Camera.RES_SMALL / Camera.RES_LARGE
+            RES_SMALL corresponds to (320x240) pixels, and RES_LARGE corresponds to (640x480) pixels
+            default: Camera.RES_SMALL
+        fps : int
+            desired frame rate in frames per second
+            The frame rate on the PSEye in quantized to specific levels, and higher frame rates can be achieved with the smaller resolution setting
+            Use the Camera.check_fps method to evaluate the empirical frame rate after initializing the object
+        colour : True / False
+            colour mode returns 3D frames with color in the last (3rd) dimension as RGB
+            greyscale (colour=False) returns 2D frames
+        kwargs : any of the camera settings detailed below
+
+        Available camera settings include:
+            auto_gain (True / False)
+            auto_exposure (True / False) - NOT YET IMPLEMENTED
+            auto_whitebalance (True / False)
+            gain (0-63)
+            exposure (0-255)
+            sharpness (0-63)
+            contrast (0-255)
+            brightness (0-255)
+            hue (0-255)
+            red_balance (0-255)
+            blue_balance (0-255)
+            green_balance (0-255)
+            hflip (True / False) - flip frames horizontally upon reading
+            vflip (True / False) - flip frames vertically upon reading
+        """
 
         if isinstance(ids, (int, float, long)):
             ids = [ids]
         elif isinstance(ids, (tuple, np.ndarray)):
             ids = list(ids)
-        self.ids = ids
+        elif ids is None:
+            ids = list(range(cam_count()))
+        self._ids = ids
 
         if isinstance(resolution, (int, float, long)):
-            resolution = [self._RESOLUTION[resolution]] * len(self.ids)
+            resolution = [self._RESOLUTION[resolution]] * len(ids)
         elif isinstance(resolution, (tuple, list, np.ndarray)):
-            assert len(resolution) == len(self.ids)
+            assert len(resolution) == len(ids)
             assert all([isinstance(r, (int, float, long)) for r in resolution])
             resolution = [self._RESOLUTION[r] for r in resolution]
-        self.resolution = resolution
-        self.w, self.h = zip(*self.resolution)
+        self._resolution = resolution
+        self._w, self._h = zip(*resolution)
 
         if isinstance(fps, (int, float, long)):
-            fps = [fps] * len(self.ids)
+            fps = [fps] * len(ids)
         elif isinstance(fps, (tuple, list, np.ndarray)):
-            assert len(fps) == len(self.ids)
+            assert len(fps) == len(ids)
             assert all([isinstance(f, (int, float, long)) for f in fps])
-        self.fps = fps
+        self._fps = fps
 
-        if isinstance(color, bool):
-            color = [color] * len(self.ids)
-        elif isinstance(color, (tuple, list, np.ndarray)):
-            assert len(color) == len(self.ids)
-            assert all([isinstance(c, bool) for c in color])
+        if isinstance(colour, bool):
+            colour = [colour] * len(ids)
+        elif isinstance(colour, (tuple, list, np.ndarray)):
+            assert len(colour) == len(ids)
+            assert all([isinstance(c, bool) for c in colour])
         else:
             raise Exception('Color mode not understood, should be True or False.')
-        self.color = color
-        self.format = [PS3EYE_FORMAT_RGB if c else PS3EYE_FORMAT_GRAY for c in self.color]
-        self.depth = [3 if c else 1 for c in self.color] # 2nd 3 will be 1 when grey is implemented
+        self._colour = colour
+        self._format = [PS3EYE_FORMAT_RGB if c else PS3EYE_FORMAT_GRAY for c in colour]
+        self._depth = [3 if c else 1 for c in colour] # 2nd 3 will be 1 when grey is implemented
 
-        self.shape = [(y,x,d) if d>1 else (y,x) for y,x,d in zip(self.h, self.w, self.depth)]
+        self._shape = [(y,x,d) if d>1 else (y,x) for y,x,d in zip(self._h, self._w, self._depth)]
 
         # init context
         ps3eye_init()
@@ -145,32 +244,83 @@ class Camera():
         # init all cameras
         count = ps3eye_count_connected()
         self.buffers = {}
-        for idx,_id in enumerate(self.ids):
+        for idx,_id in enumerate(ids):
             if _id >= count:
                 ps3eye_uninit()
                 raise Exception('No camera available at index {}.\nAvailable cameras: {}'.format(_id, count))
             else:
-                success = ps3eye_open(_id, self.w[idx], self.h[idx], self.fps[idx], self.format[idx])
+                success = ps3eye_open(_id, self._w[idx], self._h[idx], fps[idx], self._format[idx])
                 if not success:
                     raise Exception('Camera at index {} failed to initialize.'.format(_id))
-                self.buffers[_id] = np.bytes_(self.w[idx]*self.h[idx]*self.depth[idx])
+                self.buffers[_id] = np.bytes_(self._w[idx]*self._h[idx]*self._depth[idx])
+        self._timestamps = {}
 
         # params
         for pconst,(pname,valid) in self._PARAMS.items():
-            setattr(self, pname, CtrlList([ps3eye_get_parameter(i, pconst) for i in self.ids], param_id=pconst))
+            setattr(Camera, pname, property(fget=_getattr_wrapper('_'+pname), fset=_setattr_wrapper('_'+pname)))
+            setattr(self, '_'+pname, CtrlList([ps3eye_get_parameter(i, pconst) for i in ids], param_id=pconst, ids=ids))
+
+        # protected attributes
+        protected = ['ids','resolution','w','h','fps','colour','format','depth','shape']
+        for p in protected:
+            setattr(Camera, p, property(fget=_getattr_wrapper('_'+p), fset=_noset(p)))
 
         self._ended = False
+
         atexit.register(self.end)
 
-    def read(self, timestamp=True):
-        """Read a frame from each camera
+        # any optional init params supplied
+        # performed last because it has the potential to throw and exception, but that should not invalidate the existence of this object
+        for k,v in kwargs.items():
+            if k in dir(self):
+                setattr(self, k, v)
+            else:
+                warnings.warn('Parameter {} not recognized; ignored.'.format(k))
+
+    def read(self, idx=None, timestamp=True, squeeze=True):
+        """Read camera frame/s
+
+        Parameters
+        ----------
+        idx : int / list-like / None
+            index/indices of camera/s from which to read
+            if None, reads from all cameras controlled by this object
+        timestamp : True / False
+            return timestamp along with frame
+            if True, returns (frames, timestamps)
+        squeeze : True / False
+            if False, returns a list of frames/timestamps even when only one camera is controlled
+
+        Returns
+        -------
+        list of frames, one per camera controlled by the object
         """
-        imgs,ts = [],[]
-        for idx,_id in enumerate(self.ids):
-            timestamp = ps3eye_grab_frame(_id, self.buffers[_id]) 
+        was_scalar = False
+        if idx is None:
+            idx = list(range(len(self.ids)))
+        elif isinstance(idx, (list,np.ndarray)):
+            assert all([i<len(self.ids) for i in idx])
+        elif isinstance(idx, (float,int,long)):
+            idx = [idx]
+            was_scalar = True
+
+        imgs,ts = [None for i in idx],[None for i in idx]
+        
+        for j,i in enumerate(idx):
+            _id = self.ids[i]
+            tstmp = ps3eye_grab_frame(_id, self.buffers[_id])
             img = np.frombuffer(self.buffers[_id], dtype=self.FRAME_DTYPE)
-            imgs.append(img.reshape(self.shape[idx]))
-            ts.append(timestamp*1e-6) # us to s
+            imgs[j] = img.reshape(self.shape[i])
+            ts[j] = tstmp*1e-6
+
+        if was_scalar:
+            img = imgs[0]
+            ts = ts[0]
+
+        if squeeze and len(imgs)==1:
+            img = imgs[0]
+            ts = ts[0]
+
         if timestamp:
             return (imgs, ts)
         else:
@@ -178,15 +328,28 @@ class Camera():
 
     def check_fps(self, n_seconds=10):
         """Empirical measurement of frame rate in frames per second
+
+        Parameters
+        ----------
+        n_seconds : int
+            number of seconds over which to acquire frames for frame rate analysis (you will need to wait this duration for each camera controlled)
+
+        Returns
+        -------
+        timestamps from each camera
+
+        Running this method will print out an analysis of the frame rate
         """
-        n_frames = max([fps * n_seconds for fps in self.fps])
+
         tss = []
-        for i in range(n_frames):
-            _,ts = self.read()
-            tss.append(ts)
-        tss = np.array(tss)
         for i in range(len(self.ids)):
-            ts = tss[:,i]
+            n_frames = self.fps[i] * n_seconds
+            ts = []
+            for f in range(n_frames):
+                _,tsi = self.read(i)
+                ts.append(tsi)
+            ts = np.array(ts)
+            tss.append(ts)
             dif = np.diff(ts)
 
             desired_interval = 1/self.fps[i]
@@ -215,7 +378,7 @@ class Camera():
         return tss
 
     def end(self):
-        """Close object
+        """Close the object; this should be run before creating a new Camera object, and before quitting Python (for latter, it does so automatically if not called explicitly)
         """
         if not self._ended:
             for _id in self.ids:

@@ -78,14 +78,14 @@ struct ps3eye_t {
 ps3eye_t *
 id2eye(int id)
 {
-    if (id >= ps3eye_context->opened_devices.size())
+    if (ps3eye_context->opened_devices.count(id) != 1)
     {
         return NULL;
     }
 
     else
     {
-        ps3eye_t *eye = ps3eye_context->opened_devices[id];
+        ps3eye_t *eye = ps3eye_context->opened_devices.at(id);
         return eye;
     }
 }
