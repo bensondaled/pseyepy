@@ -17,6 +17,7 @@ This package is based on all open-source libraries compatible with macOS, Window
 
 TODO:
     * crucial: run threads for Camera.read to allow for different framerates across cameras
+    * crucial: CtrlList currently makes an assumption about the alignment of id's and positions in id list; need to de-couple those
     * for stream saving: implement strict match between frame count and timestamp count
     * generalize paths for installation (libusb, c compilers), ffmpeg
     * explore auto-exposure settings, which is acting funky
