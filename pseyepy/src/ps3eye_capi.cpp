@@ -53,6 +53,8 @@ struct ps3eye_context_t {
 static ps3eye_context_t *
 ps3eye_context = NULL;
 
+struct timeval timestamp;
+
 struct ps3eye_t {
     ps3eye_t(int id, ps3eye::PS3EYECam::PS3EYERef eye, int width, int height, int fps, ps3eye_format outputFormat)
         : eye(eye)
@@ -161,22 +163,30 @@ ps3eye_get_unique_identifier(int id, char *out_identifier, int max_identifier_le
     return success ? 0 : -1;
 }
 
-void
+uint64_t timeval2int(struct timeval ts) 
+{
+    //return timestamp in microseconds
+    return ts.tv_sec*(uint64_t)1000000+ts.tv_usec;
+}
+
+uint64_t
 ps3eye_grab_frame(int id, unsigned char* frame)
 {
     ps3eye_t *eye = id2eye(id);
 
     if (!ps3eye_context) {
         // No context available
-        return;
+        return 0;
     }
 
     if (!eye) {
         // Eye is not a valid handle
-        return;
+        return 0;
     }
 
-	eye->eye->getFrame(frame);
+	timestamp = eye->eye->getFrame(frame);
+
+    return timeval2int(timestamp); // timestamp is in microseconds
 }
 
 void

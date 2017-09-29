@@ -5,6 +5,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
+#include <time.h>
 
 #if defined WIN32 || defined _WIN32 || defined WINCE
 	#include <windows.h>
@@ -480,12 +481,14 @@ public:
 		return new_frame;
 	}
 
-	void Dequeue(uint8_t* new_frame, int frame_width, int frame_height, PS3EYECam::EOutputFormat outputFormat)
+	struct timeval Dequeue(uint8_t* new_frame, int frame_width, int frame_height, PS3EYECam::EOutputFormat outputFormat)
 	{		
 		std::unique_lock<std::mutex> lock(mutex);
 
 		// If there is no data in the buffer, wait until data becomes available
 		empty_condition.wait(lock, [this] () { return available != 0; });
+
+        gettimeofday(&timestamp,NULL);
 
 		// Copy from internal buffer
 		uint8_t* source = frame_buffer + frame_size * tail;
@@ -506,6 +509,8 @@ public:
 		// Update tail and available count
 		tail = (tail + 1) % num_frames;
 		available--;
+
+        return timestamp;
 	}
 	
 	void DebayerGray(int frame_width, int frame_height, const uint8_t* inBayer, uint8_t* outBuffer)
@@ -719,6 +724,8 @@ private:
 	uint32_t				head;
 	uint32_t				tail;
 	uint32_t				available;
+    
+    struct timeval          timestamp;
 
 	std::mutex				mutex;
 	std::condition_variable	empty_condition;
@@ -1215,9 +1222,9 @@ uint32_t PS3EYECam::getOutputBytesPerPixel() const
 	return 0;
 }
 
-void PS3EYECam::getFrame(uint8_t* frame)
+struct timeval PS3EYECam::getFrame(uint8_t* frame)
 {
-	urb->frame_queue->Dequeue(frame, frame_width, frame_height, frame_output_format);
+	return urb->frame_queue->Dequeue(frame, frame_width, frame_height, frame_output_format);
 }
 
 bool PS3EYECam::open_usb()

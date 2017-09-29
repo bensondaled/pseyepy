@@ -32,6 +32,8 @@ cdef extern from "ps3eye_capi.h":
         PS3EYE_HFLIP,               # [false, true]
         PS3EYE_VFLIP                # [false, true]
 
+    ctypedef unsigned long long uint64_t
+
     void ps3eye_init()
     void ps3eye_uninit()
     int ps3eye_count_connected()
@@ -46,7 +48,7 @@ cdef extern from "ps3eye_capi.h":
                         ps3eye_format outputFormat )
     void ps3eye_close(int id)
 
-    void ps3eye_grab_frame(int id, unsigned char *frame)
+    uint64_t ps3eye_grab_frame(int id, unsigned char *frame)
     int ps3eye_get_parameter(int id, ps3eye_parameter param)
     int ps3eye_set_parameter(int id, ps3eye_parameter param, int value)
 
@@ -165,24 +167,52 @@ class Camera():
         """
         imgs,ts = [],[]
         for idx,_id in enumerate(self.ids):
-            ps3eye_grab_frame(_id, self.buffers[_id])
+            timestamp = ps3eye_grab_frame(_id, self.buffers[_id]) 
             img = np.frombuffer(self.buffers[_id], dtype=self.FRAME_DTYPE)
-            ts.append((time.clock(), time.time()))
             imgs.append(img.reshape(self.shape[idx]))
+            ts.append(timestamp*1e-6) # us to s
         if timestamp:
             return (imgs, ts)
         else:
             return imgs
 
-    def check_fps(self):
+    def check_fps(self, n_seconds=10):
         """Empirical measurement of frame rate in frames per second
         """
-        dts = []
-        for i in range(100):
-            t0 = time.time()
-            self.read()
-            dts.append(time.time()-t0)
-        return 1/np.mean(dts)
+        n_frames = max([fps * n_seconds for fps in self.fps])
+        tss = []
+        for i in range(n_frames):
+            _,ts = self.read()
+            tss.append(ts)
+        tss = np.array(tss)
+        for i in range(len(self.ids)):
+            ts = tss[:,i]
+            dif = np.diff(ts)
+
+            desired_interval = 1/self.fps[i]
+            mean_interval = np.mean(dif)
+            mean_rate = 1/mean_interval
+            std_interval = np.std(dif)
+            within_1ms = np.mean(np.abs(desired_interval - dif)<=0.001)
+            within_2ms = np.mean(np.abs(desired_interval - dif)<=0.002)
+            above_1ms = np.mean((dif - desired_interval)>0.001)
+            below_1ms = np.mean((dif - desired_interval)<-0.001)
+            above_2ms = np.mean((dif - desired_interval)>0.002)
+            below_2ms = np.mean((dif - desired_interval)<-0.002)
+
+            print("""Camera {}:\t
+                    Mean rate: {:0.3f} fps (desired={:0.0f})\t
+                    Mean interval: {:0.3f} ms (desired={:0.3f})\t
+                    Std interval: {:0.3f} ms ({:0.1f}%)\t
+                    Within 1 ms of desired (={} fps): {:0.2f}%\t
+                    Within 2 ms of desired (={} fps): {:0.2f}%\t
+                    >1 ms longer than desired: {:0.2f}%\t
+                    >1 ms shorter than desired: {:0.2f}%\t
+                    >2 ms longer than desired: {:0.2f}%\t
+                    >2 ms shorter than desired: {:0.2f}%
+                    """.format(i, mean_rate, self.fps[i], 1e3*mean_interval, 1e3/self.fps[i], 1e3*std_interval, 100*std_interval/mean_interval, self.fps[i], 100*within_1ms, self.fps[i], 100*within_2ms, 100*above_1ms, 100*below_1ms, 100*above_2ms, 100*below_2ms))
+
+        return tss
 
     def end(self):
         """Close object

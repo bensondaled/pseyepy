@@ -85,6 +85,8 @@ class FFMpegWriter():
         if self.timestamps:
             if isinstance(timestamp, (tuple,list,np.ndarray)):
                 timestamp = ','.join(['{:0.15f}']*len(timestamp)).format(*timestamp)
+            else:
+                timestamp = '{:0.15f}'.format(timestamp)
             self.ts_file.write('{}\n'.format(timestamp))
 	
     def end(self):

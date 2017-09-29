@@ -100,7 +100,7 @@ ps3eye_get_unique_identifier(int id, char *out_identifier, int max_identifier_le
  * the byte offset between two consecutive lines in the frame
  * will be written to *stride.
  **/
-void
+uint64_t
 ps3eye_grab_frame(int id, unsigned char* frame);
 
 /**
