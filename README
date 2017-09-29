@@ -7,12 +7,13 @@ This package is based on open-source libraries compatible with macOS, Windows, a
 
 TODO:
     * crucial: run threads for Camera.read to allow for different framerates across cameras
-    * benchmark timestamps again (try to replicate the scenario where they were lagging; though seems not to happen anymore)
+    * for stream saving: implement strict match between frame count and timestamp count
     * generalize paths for installation (libusb, c compilers), ffmpeg
     * explore auto-exposure settings, which is acting funky
     * protect unacceptable attribute setting in Camera class, also allow slice (:) setting
     * build a multithreaded cython option for camera streaming to free the main process
     * documentation
     * benchmarks, performance tests
+    * benchmark timestamps again (try to replicate the scenario where they were lagging; though seems not to happen anymore)
 
 deverett [at] princeton [dot] edu
