@@ -11,7 +11,7 @@ Features:
     * simple gui for real-time video display
     * save movies to file/s
 
-This package is based on all open-source libraries compatible with macOS, Windows, and Linux:
+This package is based on open-source libraries compatible with macOS, Windows, and Linux:
     * libusb
     * [a substantially modified version of the] PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver)
     * ffmpeg (only needed for saving movies)
