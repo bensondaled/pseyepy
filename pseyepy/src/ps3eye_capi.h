@@ -37,6 +37,8 @@ extern "C" {
 
 typedef struct ps3eye_t ps3eye_t;
 
+// useful for comparison of params: http://elixir.free-electrons.com/linux/v4.3/source/drivers/media/usb/gspca/ov534.c
+
 typedef enum{
     PS3EYE_AUTO_GAIN,           // [false, true]
     PS3EYE_GAIN,                // [0, 63]

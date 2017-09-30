@@ -142,20 +142,20 @@ class Camera():
 
     _PARAMS = { 
                 PS3EYE_AUTO_GAIN:           ('auto_gain',      [True, False]),
-                #PS3EYE_AUTO_EXPOSURE:      ('auto_exposure',  [True, False]), # until I debug auto-exposure
-                # this may help: https://android.googlesource.com/kernel/exynos.git/+/9bd6eb82b787bce6600659aef25b8c23ec601445/drivers/media/video/gspca/ov534.c
+                PS3EYE_AUTO_EXPOSURE:       ('auto_exposure',  [True, False]),
                 PS3EYE_AUTO_WHITEBALANCE:   ('auto_whitebalance',[True, False]),
                 PS3EYE_GAIN:                ('gain',           list(range(64))),
                 PS3EYE_EXPOSURE:            ('exposure',       list(range(256))),
-                PS3EYE_SHARPNESS:           ('sharpness',      list(range(64))),
-                PS3EYE_CONTRAST:            ('contrast',       list(range(256))),
-                PS3EYE_BRIGHTNESS:          ('brightness',     list(range(256))),
-                PS3EYE_HUE:                 ('hue',            list(range(256))),
                 PS3EYE_REDBALANCE:          ('red_balance',    list(range(256))),
                 PS3EYE_BLUEBALANCE:         ('blue_balance',   list(range(256))),
                 PS3EYE_GREENBALANCE:        ('green_balance',  list(range(256))),
                 PS3EYE_HFLIP:               ('hflip',          [True, False]),
                 PS3EYE_VFLIP:               ('vflip',          [True, False]),
+                # these are technically implemented but I have found they do not work, or they interefere with other params:
+                #PS3EYE_SHARPNESS:           ('sharpness',      list(range(64))),
+                #PS3EYE_CONTRAST:            ('contrast',       list(range(256))),
+                #PS3EYE_BRIGHTNESS:          ('brightness',     list(range(256))),
+                #PS3EYE_HUE:                 ('hue',            list(range(256))),
             }
 
     RES_SMALL = 0
@@ -177,7 +177,9 @@ class Camera():
             default: Camera.RES_SMALL
         fps : int
             desired frame rate in frames per second
-            The frame rate on the PSEye in quantized to specific levels, and higher frame rates can be achieved with the smaller resolution setting
+            The frame rate on the PSEye is quantized to specific levels, and higher frame rates can be achieved with the smaller resolution setting
+            Frame rates for RES_SMALL: 30, 40, 50, 60, 75, 100, 125 (although other rates may work)
+            Frame rates for RES_LARGE: 15, 30, 40, 50, 60 (although other rates may work)
             Use the Camera.check_fps method to evaluate the empirical frame rate after initializing the object
         colour : True / False
             colour mode returns 3D frames with color in the last (3rd) dimension as RGB
@@ -190,15 +192,12 @@ class Camera():
             auto_whitebalance (True / False)
             gain (0-63)
             exposure (0-255)
-            sharpness (0-63)
-            contrast (0-255)
-            brightness (0-255)
-            hue (0-255)
             red_balance (0-255)
             blue_balance (0-255)
             green_balance (0-255)
             hflip (True / False) - flip frames horizontally upon reading
             vflip (True / False) - flip frames vertically upon reading
+        Note that some of these settings interact with each other in strange ways, and you may find it difficult to return to a particular parameter set without restarting the program.
         """
 
         if isinstance(ids, (int, float, long)):

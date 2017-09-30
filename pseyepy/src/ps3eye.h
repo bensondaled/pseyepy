@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <math.h>
 
 #include <memory>
 
@@ -66,36 +67,47 @@ public:
 	void setAutogain(bool val) {
 	    autogain = val;
 	    if (val) {
-			sccb_reg_write(0x13, 0xf7); //AGC,AEC,AWB ON
+			//sccb_reg_write(0x13, 0xf7); //AGC,AEC,AWB ON
+			sccb_reg_write(0x13, sccb_reg_read(0x13)|0x04);
 			sccb_reg_write(0x64, sccb_reg_read(0x64)|0x03);
 	    } else {
-			sccb_reg_write(0x13, 0xf0); //AGC,AEC,AWB OFF
-			sccb_reg_write(0x64, sccb_reg_read(0x64)&0xFC);
+			//sccb_reg_write(0x13, 0xf0); //AGC,AEC,AWB OFF
+			//sccb_reg_write(0x64, sccb_reg_read(0x64)&0xFC);
+			sccb_reg_write(0x13, sccb_reg_read(0x13) & ~0x04);
+			sccb_reg_write(0x64, sccb_reg_read(0x64) & ~0x03);
 
 			setGain(gain);
-			setExposure(exposure);
 	    }
 	}
 	bool getAutoWhiteBalance() const { return awb; }
 	void setAutoWhiteBalance(bool val) {
 	    awb = val;
 	    if (val) {
-			sccb_reg_write(0x63, 0xe0); //AWB ON
+			sccb_reg_write(0x13, sccb_reg_read(0x13) | 0x02);
+			sccb_reg_write(0x63, sccb_reg_read(0x63) | 0xc0);
+            //sccb_reg_write(0x63, 0xe0); //AWB ON - using this option enables hue control
 	    }else{
-			sccb_reg_write(0x63, 0xAA); //AWB OFF
+			sccb_reg_write(0x13, sccb_reg_read(0x13) & ~0x02);
+			sccb_reg_write(0x63, sccb_reg_read(0x63) & ~0xc0);
+			//sccb_reg_write(0x63, 0xAA); //AWB OFF - using this option enables hue control
+
+            //setHue(hue);
+            setRedBalance(redblc);
+            setBlueBalance(blueblc);
+            setGreenBalance(greenblc);
 	    }
 	}
-    // All auto-exposure stuff added by BD sept 21 2017
 	bool getAutoExposure() const { return aex; }
 	void setAutoExposure(bool val) {
 	    aex = val;
 	    if (val) {
-			sccb_reg_write(0x13, 0xe0); //AEX ON
+			sccb_reg_write(0x13, sccb_reg_read(0x13) | 0x05);
 	    }else{
-			sccb_reg_write(0x13, 0xAA); //AEX OFF
+			sccb_reg_write(0x13, sccb_reg_read(0x13) & ~0x05);
+			setExposure(exposure);
+            setGain(gain); // importantly: auto-gain is linked to auto-exposure, so must return gain to its correct value when auto-exposure goes off
 	    }
 	}
-    //
 	uint8_t getGain() const { return gain; }
 	void setGain(uint8_t val) {
 	    gain = val;
@@ -143,21 +155,39 @@ public:
 	uint8_t getHue() const { return hue; }
 	void setHue(uint8_t val) {
 		hue = val;
-		sccb_reg_write(0x01, val);
+		sccb_reg_write(0x01, val); // at one point this line alone did work
+        /*
+        double huesin;
+        double huecos;
+        huesin = sin(val) * 128;
+        huecos = cos(val) * 128;
+        if (huesin < 0) {
+			sccb_reg_write(0xab, sccb_reg_read(0xab) | 0x2);
+            huesin = -huesin;
+        }
+        else {
+			sccb_reg_write(0xab, sccb_reg_read(0xab) & ~0x2);
+        }
+        sccb_reg_write(0xa9, (uint8_t)huecos);
+        sccb_reg_write(0xaa, (uint8_t)huesin);
+        */
 	}
 	uint8_t getRedBalance() const { return redblc; }
 	void setRedBalance(uint8_t val) {
 		redblc = val;
+        if (awb) return;
 		sccb_reg_write(0x43, val);
 	}
 	uint8_t getBlueBalance() const { return blueblc; }
 	void setBlueBalance(uint8_t val) {
 		blueblc = val;
+        if (awb) return;
 		sccb_reg_write(0x42, val);
 	}
 	uint8_t getGreenBalance() const { return greenblc; }
 	void setGreenBalance(uint8_t val) {
 		greenblc = val;
+        if (awb) return;
 		sccb_reg_write(0x44, val);
 	}
     bool getFlipH() const { return flip_h; }

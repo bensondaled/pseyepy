@@ -29,6 +29,7 @@ class Display(tk.Tk):
         self._refresh_interval = int(1000/self.refresh_rate)
 
         self.cvs = None 
+        self.recall = None
 
         # run main loop
         self.title('Camera Display')
@@ -62,7 +63,7 @@ class Display(tk.Tk):
                         minn = int(min(valid))
                         maxx = int(max(valid))
                         fxn = lambda val, pn=pname, ii=i: self.set_param(ii, pn, val)
-                        sc = tk.Scale(self, from_=minn, to=maxx, orient=tk.HORIZONTAL, length=img.shape[1], command=fxn)
+                        sc = tk.Scale(self, from_=minn, to=maxx, orient=tk.HORIZONTAL, length=canvas.w, command=fxn, showvalue=False)
                         sc.set(getattr(self.cam, pname)[i])
                         sc.grid(column=i+1, row=1+pidx)
                         if i==0:
@@ -81,7 +82,8 @@ class Display(tk.Tk):
             getattr(self.cam, name)[int(idx)] = int(val)
 
     def end(self, *args):
-        self.after_cancel(self.recall)
+        if self.recall is not None:
+            self.after_cancel(self.recall)
         [oe() for oe in self.onexit]
         self.destroy()
 
@@ -91,8 +93,13 @@ class ImgCanvas(tk.Canvas):
         img : np.ndarray
         """
 
-        kwargs['width'] = kwargs.get('width', img.shape[1])
-        kwargs['height'] = kwargs.get('height', img.shape[0])
+        # TODO: un-hardcode this
+        self.h,self.w = img.shape[:2]
+        if (self.h, self.w) == (480,640):
+            self.h,self.w = 240,320
+
+        kwargs['width'] = kwargs.get('width', self.w)
+        kwargs['height'] = kwargs.get('height', self.h)
         kwargs['highlightthickness'] = kwargs.get('highlightthickness', 0)
 
         tk.Canvas.__init__(self,parent,**kwargs)
@@ -101,11 +108,17 @@ class ImgCanvas(tk.Canvas):
         self.set_img(img)
         
     def set_img(self, img):
+        shape = img.shape[:2]
         pimg = Image.fromarray(img)
-        #pimg = pimg.resize((320,240), Image.ANTIALIAS)
+
+        #TODO: un-hardcode this
+        if shape == (480,640):
+            shape = (240,320)
+            pimg = pimg.resize(shape[::-1], Image.ANTIALIAS)
+
         self.photo = ImageTk.PhotoImage(image=pimg)
         if self.cvs_im is None:
-            center = (img.shape[1]//2, img.shape[0]//2)
+            center = (shape[1]//2, shape[0]//2)
             self.cvs_im = self.create_image(center[0], center[1], image=self.photo)
         else:
             self.itemconfig(self.cvs_im, image=self.photo)
