@@ -6,11 +6,14 @@ class CamDump(threading.Thread):
     Is implemented as thread currently b/c camera class only runs in main process and cannot be forked
     This is a hard problem
     """
-    def __init__(self, cam, que):
+    def __init__(self, cam, ques):
         super().__init__()
 
         self.cam = cam
-        self.que = que
+        self.ques = ques
+
+        if isinstance(self.ques, mp.queues.Queue):
+            self.ques = [self.ques]
 
         self.kill = mp.Event()
         self.done = mp.Event()
@@ -20,9 +23,10 @@ class CamDump(threading.Thread):
     def run(self):
 
         while not self.kill.is_set():
-            frame,ts = self.cam.read(timestamp=True)
+            frame,ts = self.cam.read(timestamp=True, squeeze=False)
 
-            self.que.put((frame,ts))
+            for que in self.ques:
+                que.put((frame,ts))
 
         self.done.set()
 

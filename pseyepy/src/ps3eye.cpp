@@ -1011,12 +1011,13 @@ PS3EYECam::PS3EYECam(libusb_device *device)
 	// default controls
 	autogain = false;
 	gain = 20;
-	exposure = 120;
+	exposure = 128;
 	sharpness = 0;
-	hue = 143;
+	hue = 128;
 	awb = false;
+    aex = false;
 	brightness = 20;
-	contrast =  37;
+	contrast =  30;
 	blueblc = 128;
 	redblc = 128;
 	greenblc = 128;

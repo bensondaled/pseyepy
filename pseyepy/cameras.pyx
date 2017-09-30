@@ -75,7 +75,7 @@ class CtrlList(list):
     def __setitem__(self, pos, val):
 
         # invalid parameter supplied
-        if val not in self.valid:
+        if val not in self.valid and int(val) not in self.valid:
             warnings.warn('\nParameter adjustment for {name} aborted.\nAllowed values for {name}: {valid}\nRequested value: {req}'.format(name=self.nm, valid=self.valid, req=val))
             return
 
@@ -314,11 +314,11 @@ class Camera():
             ts[j] = tstmp*1e-6
 
         if was_scalar:
-            img = imgs[0]
+            imgs = imgs[0]
             ts = ts[0]
 
         if squeeze and len(imgs)==1:
-            img = imgs[0]
+            imgs = imgs[0]
             ts = ts[0]
 
         if timestamp:

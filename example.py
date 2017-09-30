@@ -31,7 +31,11 @@ d = Display(c)
 
 
 # -- save to file
+c = Camera()
 s = Stream(c, file_name='example_movie.avi')
+s.end() # stop acquiring
+# for a pseudo-decent live monitor (not nearly as fast as Display):
+s = Stream(c, file_name='example_movie.avi', display=True)
 s.end() # stop acquiring
 
 ##
