@@ -25,6 +25,7 @@ This package is based on open-source libraries compatible with macOS, Windows, a
   * more documentation
   * benchmarks, performance tests (including n_in n_out counts)
   * build a multithreaded cython option for camera streaming to free the main process
+  * importantly: without a threading implementation, Stream with cameras of different framerates will result in lowest for all
   * simultaneous display/saving?
 
 Working notes for documentation:
