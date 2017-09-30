@@ -1,5 +1,7 @@
 #### A python API for acquisition and saving of video from the PS3Eye camera.
-If you're making use of this package, please let me know! I'll be motivated to improve and maintain it if people are benefiting from it.
+If you're making use of this package, please let me know! 
+I'll be motivated to improve and maintain it if people are benefiting from it.
+
 Reach me at: deverett[at]princeton[dot]edu
 
 ### Features:
@@ -11,7 +13,7 @@ Reach me at: deverett[at]princeton[dot]edu
   * simple gui for real-time video display 
   * save movies to file/s
 
-### This package is based on open-source libraries compatible with macOS, Windows, and Linux:
+This package is based on open-source libraries compatible with macOS, Windows, and Linux:
   * libusb
   * [a substantially modified version of the] PS3EYEDriver project (https://github.com/inspirit/PS3EYEDriver)
   * ffmpeg (only needed for saving movies)
