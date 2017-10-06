@@ -8,7 +8,7 @@ Reach me at: deverett[at]princeton[dot]edu
   * stream simultaneously from as many cameras as you have available usb ports
   * frame rates from arbitrarily low to 125+ fps  
   * resolutions 640x480 or 320x240  
-  * control of camera settings include gain, exposure, white balance, hue, brightness, contrast, flips, etc.
+  * control of camera settings include gain, exposure, white balance, flips, etc.
   * high-resolution timestamps  
   * simple gui for real-time video display 
   * save movies to file/s
