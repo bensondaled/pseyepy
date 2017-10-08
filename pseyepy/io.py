@@ -101,9 +101,9 @@ class FFMpegWriter():
         self.proc.stdin.write(frame.tobytes())
         if self.timestamps:
             if isinstance(timestamp, (tuple,list,np.ndarray)):
-                timestamp = ','.join(['{:0.15f}']*len(timestamp)).format(*timestamp)
+                timestamp = ','.join(['{:0.6f}']*len(timestamp)).format(*timestamp)
             else:
-                timestamp = '{:0.15f}'.format(timestamp)
+                timestamp = '{:0.6f}'.format(timestamp)
             self.ts_file.write('{}\n'.format(timestamp))
 	
     def end(self):
