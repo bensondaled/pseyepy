@@ -43,6 +43,16 @@ If this does not work, it's likely a libusb issue. Try adjusting paths such that
 ------------
 ### Examples
 
+```python
+from pseyepy import Camera
+
+# initialize all connected cameras
+c = Camera()
+
+# read from the camera/s
+frame, timestamp = c.read()
+```
+
 ---------------------------------------
 ### Troubleshooting and known pitfalls
 
