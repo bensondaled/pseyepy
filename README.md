@@ -9,7 +9,7 @@ Reach me at: deverett[at]princeton[dot]edu
 ----------------------
 ### About this package
 
-*pseyepy* is a lightweight, cross-platform, and open-source Python interface to the Playstation PS3Eye USB camera. It is a wrapper of a C API based heavily on the excellent [PS3EYEDriver project](https://github.com/inspirit/PS3EYEDriver). 
+*pseyepy* is a lightweight, cross-platform, and open-source Python interface to the Playstation PS3Eye USB camera. It is a wrapper of a C API that derives from the excellent [PS3EYEDriver project](https://github.com/inspirit/PS3EYEDriver). 
 
 
 At this point, the dependencies for the project are:
