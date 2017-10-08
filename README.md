@@ -52,16 +52,88 @@ c = Camera()
 
 # read from the camera/s
 frame, timestamp = c.read()
+
+# when finished, close the camera
+c.end()
 ```
 
 You may specify specific camera/s:
-
 ```python
 c = Camera(0) # camera at index 0
 ```
 
 ```python
 c = Camera([0,1]) # cameras at indices 0 and 1
+```
+
+Set initialization parameters for your camera/s:
+```python
+c = Camera([0,1], fps=60, resolution=Camera.RES_LARGE, colour=False)
+```
+Note that frame rate, resolution, and colour are the 3 parameters that cannot be changed after initializing.
+
+Set initialization parameters for each camera independently:
+```python
+c = Camera([0,1], fps=60, resolution=Camera.RES_LARGE, colour=False)
+```
+
+Set initialization parameters for each camera independently:
+```python
+c = Camera([0,1], fps=[30, 60], resolution=[Camera.RES_LARGE, Camera.RES_SMALL], colour=[True, False])
+```
+
+Set mutable image acquisition parameters upon initialization:
+```python
+c = Camera(fps=30, colour=[False,True], gain=50, vflip=[True, False])
+```
+The mutable parameters include gain, exposure, whitebalance, vflip, hflip. See docstring for full details.
+
+Set parameters after initialization:
+```python
+c.exposure = 23
+```
+
+For each camera independently:
+```python
+c.exposure[0] = 23
+c.exposure[1] = 45
+```
+
+Read from all cameras:
+```python
+frames, timestamps = c.read()
+```
+
+Read from a specific camera:
+```python
+frame0, timestamp0 = c.read(1) # read from camera at index 1
+```
+
+Live display of camera feed with parameter controls:
+```python
+from pseyepy import Camera, Display
+
+c = Camera() # initialize a camera
+d = Display(c) # begin the display
+```
+
+Stream camera data to a file using ffmpeg:
+```python
+from pseyepy import Camera, Stream
+
+c = Camera() # initialize a camera
+s = Stream(c, file_name='example_movie.avi', codec='png')
+
+# when finished, close the stream
+s.end()
+```
+
+Stream to file while also displaying (beta):
+```python
+s = Stream(c, file_name='example_movie.avi', display=True)
+
+# when finished, close the stream
+s.end()
 ```
 
 ---------------------------------------
