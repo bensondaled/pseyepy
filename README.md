@@ -54,9 +54,15 @@ c = Camera()
 frame, timestamp = c.read()
 ```
 
-Specify specific camera/s:
-`c = Camera(0)` # camera at index 0
-`c = Camera([0,1])` # cameras at indices 0 and 1
+You may specify specific camera/s:
+
+```python
+c = Camera(0) # camera at index 0
+```
+
+```python
+c = Camera([0,1]) # cameras at indices 0 and 1
+```
 
 ---------------------------------------
 ### Troubleshooting and known pitfalls
