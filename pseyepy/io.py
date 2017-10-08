@@ -10,7 +10,7 @@ import h5py
 from .asynchronous import CamDump
 from .ui import Display
 
-def generate_movie_params(cam, file_name):
+def generate_movie_params(cam, file_name, **kw):
     """Given a camera object and a root file_name, format and return file-saving parameters
     """
     if isinstance(file_name, str):
@@ -33,18 +33,21 @@ def generate_movie_params(cam, file_name):
             colour = cam.colour[i],
             ) for i in range(len(cam.ids)) ]
 
+    for mp in movie_params:
+        mp.update(kw)
+
     return movie_params
 
 class Stream():
     """Convenience class to handle the creation of a CamDump and Writer, to grab and save input from a camera
     """
-    def __init__(self, cam, file_name=None, display=False):
+    def __init__(self, cam, file_name=None, display=False, **kwargs):
         self.cam = cam
         self.file_name = file_name
         self.ques = {}
 
         if self.file_name is not None:
-            movie_params = generate_movie_params(self.cam, self.file_name)
+            movie_params = generate_movie_params(self.cam, self.file_name, **kwargs)
             self.ques['file'] = mp.Queue()
         if display:
             self.ques['display'] = mp.Queue()
