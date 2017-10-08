@@ -1,4 +1,4 @@
-#### A python API for acquisition, display, and saving of video from the PS3Eye camera.
+#### *pseyepy:* A python API for acquisition, display, and saving of video from the PS3Eye camera.
 
 If you're making use of this package, please let me know! 
 
@@ -6,6 +6,7 @@ I'll be motivated to improve and maintain it if people are benefiting from it.
 
 Reach me at: deverett[at]princeton[dot]edu
 
+----------------------
 ### About this package
 ----------------------
 
