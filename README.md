@@ -86,7 +86,7 @@ Set mutable image acquisition parameters upon initialization:
 ```python
 c = Camera(fps=30, colour=[False,True], gain=50, vflip=[True, False])
 ```
-The mutable parameters include gain, exposure, whitebalance, vflip, hflip. See docstring for full details.
+*The mutable parameters include gain, exposure, whitebalance, vflip, hflip. See docstring for full details.*
 
 Set parameters after initialization:
 ```python
