@@ -106,7 +106,7 @@ frames, timestamps = c.read()
 
 Read from a specific camera:
 ```python
-frame0, timestamp0 = c.read(1) # read from camera at index 1
+frame1, timestamp1 = c.read(1) # read from camera at index 1
 ```
 
 Live display of camera feed with parameter controls:
@@ -122,7 +122,7 @@ Stream camera data to a file using ffmpeg:
 from pseyepy import Camera, Stream
 
 c = Camera() # initialize a camera
-s = Stream(c, file_name='example_movie.avi', codec='png')
+s = Stream(c, file_name='example_movie.avi', codec='png') # begin saving data to files
 
 # when finished, close the stream
 s.end()
