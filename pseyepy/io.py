@@ -64,7 +64,7 @@ class Stream():
 class FFMpegWriter():
     """Pipes to a video file using ffmpeg on command
     """
-    def __init__(self, file_name, shape=(320,240), colour=False, fps=30, timestamps=False):
+    def __init__(self, file_name, shape=(320,240), colour=False, fps=30, timestamps=False, codec='png'):
         """
         shape : w,h
         """
@@ -93,7 +93,7 @@ class FFMpegWriter():
             '-r', _fps,
             '-i', '-', # pipe
             '-an', # no audio
-            '-vcodec', 'png',
+            '-vcodec', codec,
             file_name ]
         self.proc = sp.Popen(self.cmd, stdin=sp.PIPE, stderr=sp.PIPE)
 
