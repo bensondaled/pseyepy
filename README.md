@@ -32,7 +32,7 @@ The important features are:
 ----------------
 ### Installation
 
-Installation has not yet been thoroughlly tested on all platforms. Eventually I will get around to enabling a pip install. For now:
+Installation has not yet been thoroughly tested on all platforms. Eventually I will get around to enabling a pip install. For now:
 
 1. Download libusb and ffmpeg
 2. Download the source code, unzip, and navigate to the root directory
