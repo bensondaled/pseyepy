@@ -14,7 +14,7 @@ Reach me at: deverett[at]princeton[dot]edu
 
 At this point, the dependencies for the project are:
   * python 3x
-  * numpy
+  * numpy, cython
   * [libusb](http://libusb.info/)
   * (a substantially modified version of the) [PS3EYEDriver project](https://github.com/inspirit/PS3EYEDriver)
   * [ffmpeg](https://www.ffmpeg.org/)
@@ -28,16 +28,38 @@ The important features are:
   * simple gui for real-time video display 
   * save movies to disk
 
-### Working notes for documentation:
---------------------------------
-  * The PSEye camera has two LED indicators: a blue light indicating power, and a red light indiciating communication with the computer.
+----------------
+### Contributing
+----------------
+Contributions are greatly appreciated! You can make a pull request, or simply email me (address above).
+
+----------------
+### Installation
+----------------
+Installation has not yet been thoroughlly tested on all platforms. Eventually I will get around to enabling a pip install. For now:
+
+1. Download libusb and ffmpeg
+2. Download the source code, unzip, and navigate to the root directory
+3. `python setup.py install`
+
+If this does not work, it's likely a libusb issue. Try adjusting paths such that libusb paths are included by default.
+
+------------
+### Examples
+------------
+
+---------------------------------------
+### Troubleshooting and known pitfalls
+---------------------------------------
+  * The PSEye camera has two LED indicators: a blue light indicating power, and a red light indiciating communication with the computer. If these lights are not on, then their respective functions are not active (although note that you can intentionally destroy these LEDs if you please, and the camera will work fine).
   * If the cameras or API act strangely, try disconnecting and reconnecting the cameras, restarting the Python shell, and running the program again.
   * In general it is recommended to restart the python process before each camera use; it's not technically necessary but it helps avoid some issues.
   * The on-board camera settings can be wonky; changing them in a particular order can have specific effects, that sometimes prove irreversible until you restart the program.
-  * The Stream writer currently can drop ~0.01% of frames (likely from the very end only, still unclear)
+  * The Stream writer currently can drop ~0.01% of frames (likely from the very end of the recording only, details still unclear)
 
-### TODO
---------
+---------
+### Todo
+---------
   * more documentation
   * build a multithreaded cython option for camera streaming to free the main process
   * importantly: without a threading implementation, Stream to file with cameras of different framerates will result in lowest for all
