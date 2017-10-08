@@ -70,7 +70,7 @@ Set initialization parameters for your camera/s:
 ```python
 c = Camera([0,1], fps=60, resolution=Camera.RES_LARGE, colour=False)
 ```
-Note that frame rate, resolution, and colour are the 3 parameters that cannot be changed after initializing.
+*Note that frame rate, resolution, and colour are the 3 parameters that cannot be changed after initializing.*
 
 Set initialization parameters for each camera independently:
 ```python
