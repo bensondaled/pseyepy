@@ -74,11 +74,6 @@ c = Camera([0,1], fps=60, resolution=Camera.RES_LARGE, colour=False)
 
 Set initialization parameters for each camera independently:
 ```python
-c = Camera([0,1], fps=60, resolution=Camera.RES_LARGE, colour=False)
-```
-
-Set initialization parameters for each camera independently:
-```python
 c = Camera([0,1], fps=[30, 60], resolution=[Camera.RES_LARGE, Camera.RES_SMALL], colour=[True, False])
 ```
 
