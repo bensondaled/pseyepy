@@ -134,7 +134,7 @@ s.end()
 ---------------------------------------
 ### Troubleshooting and known pitfalls
 
-  * The PSEye camera has two LED indicators: a blue light indicating power, and a red light indiciating communication with the computer. If these lights are not on, then their respective functions are not active (although note that you can intentionally destroy these LEDs if you please, and the camera will work fine).
+  * The PSEye camera has two LED indicators: a blue light indicating power, and a red light indicating communication with the computer. If these lights are not on, then their respective functions are not active (although note that you can intentionally destroy these LEDs if you please, and the camera will work fine).
   * If the cameras or API act strangely, try disconnecting and reconnecting the cameras, restarting the Python shell, and running the program again.
   * In general it is recommended to restart the python process before each camera use; it's not technically necessary but it helps avoid some issues.
   * The on-board camera settings can be wonky; changing them in a particular order can have specific effects, that sometimes prove irreversible until you restart the program.
