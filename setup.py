@@ -1,7 +1,7 @@
 from distutils.core import setup
 from Cython.Build import cythonize
 from distutils.extension import Extension
-import os, system
+import os, sys
 import warnings
 import subprocess
 
