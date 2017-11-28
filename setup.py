@@ -11,7 +11,7 @@ if sys.platform in ('darwin','linux','linux2'):
     libusb_incl = libusb_incl.replace('-I','').split(' ')
 
     libusb_libpath = subprocess.check_output(['pkg-config', '--libs', 'libusb-1.0']).strip().decode('utf8')
-    libusb_libpath = libusb_libpath.replace('-L','').split(' ')[0]
+    libusb_libpath = libusb_libpath.replace('-L','').split(' ')[0] # 0 for path, b/c second item is often the library itself; this is a bit hacky
 
 elif sys.platform.startswith('win'):
     warnings.warn('Setup params not yet configured for Windows. Setup will only work if libusb library paths are automatically found.')
