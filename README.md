@@ -38,7 +38,7 @@ Installation has not yet been thoroughly tested on all platforms. Eventually I w
 1. Download the source code, unzip, and navigate to the root directory
 2. `sudo python setup.py install`
 
-If this does not work, it's likely a libusb issue. Try adjusting paths such that libusb paths are included by default.
+If that does not work, it's likely a libusb issue. Try adjusting paths such that libusb paths are included by default.
 
 3. (If you want to use ffmpeg for saving, download and install ffmpeg)
 
