@@ -34,7 +34,8 @@ The important features are:
 
 Installation has not yet been thoroughly tested on all platforms. Eventually I will get around to enabling a pip install. For now:
 
-1. Download & install libusb and ffmpeg
+0. (If you are on Windows: download & install libusb; Mac and Linux are handled without this step)
+1. (If you want to use ffmpeg for saving, download and install ffmpeg)
 2. Download the source code, unzip, and navigate to the root directory
 3. `sudo python setup.py install`
 
