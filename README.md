@@ -36,7 +36,7 @@ Installation has not yet been thoroughly tested on all platforms. Eventually I w
 
 1. Download & install libusb and ffmpeg
 2. Download the source code, unzip, and navigate to the root directory
-3. `python setup.py install`
+3. `sudo python setup.py install`
 
 If this does not work, it's likely a libusb issue. Try adjusting paths such that libusb paths are included by default.
 
