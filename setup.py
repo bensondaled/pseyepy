@@ -34,15 +34,22 @@ if sys.platform in ('darwin','linux','linux2'):
 
     libusb_incl = ['pseyepy/ext/include/libusb-1.0']
     libusb_libpath = 'pseyepy/ext/lib'
+    libs = ['usb-1.0']
 
 elif sys.platform.startswith('win'):
     # precompiled library from:
-    # https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-1.0.19/
-    # libusb-1.0.19-rc1-win.7z
+    # https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-1.0.21/libusb-1.0.21.7z/download
+    # need visualstudio prior to 2013, for this precompiled library
+    # therefore ideally before even python installation, install vs
+    # currently used link i have to vs2012, but could use older 2008 at http://download.microsoft.com/download/A/5/4/A54BADB6-9C3F-478D-8657-93B3FC9FE62D/vcsetup.exe
+    # if setup.py still appears to be using a newer version, can hack it:
+    # https://www.ibm.com/developerworks/community/blogs/jfp/entry/Installing_Cython_On_Anaconda_On_Windows?lang=en
+    # https://sleangao.wordpress.com/2015/03/24/using-cython-under-windows-7-with-msvc-compiler/
     warnings.warn('Setup params not yet fully tested for Windows.')
 
     libusb_incl = [os.path.join('pseyepy', 'ext', 'win', 'include', 'libusb-1.0')]
     libusb_libpath = 'pseyepy/ext/win/lib'
+    libs = ['libusb-1.0']
 
 ### setup params
 os.environ["CC"]= "g++"
@@ -54,7 +61,7 @@ extensions = [  Extension('pseyepy.cameras',
                 extra_link_args=['-std=c++11','-stdlib=libc++'],
                 include_dirs=['pseyepy/src']+libusb_incl,
                 library_dirs=[libusb_libpath],
-                libraries=['usb-1.0'],
+                libraries=libs,
             )]
 
 ### run setup
