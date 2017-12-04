@@ -36,9 +36,13 @@ if sys.platform in ('darwin','linux','linux2'):
     libusb_libpath = 'pseyepy/ext/lib'
 
 elif sys.platform.startswith('win'):
-    warnings.warn('Setup params not yet configured for Windows. Setup will only work if libusb library paths are automatically found.')
-    libusb_incl = []
-    libusb_libpath = ''
+    # precompiled library from:
+    # https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-1.0.19/
+    # libusb-1.0.19-rc1-win.7z
+    warnings.warn('Setup params not yet fully tested for Windows.')
+
+    libusb_incl = [os.path.join('pseyepy', 'ext', 'win', 'include', 'libusb-1.0')]
+    libusb_libpath = 'pseyepy/ext/win/lib'
 
 ### setup params
 os.environ["CC"]= "g++"
