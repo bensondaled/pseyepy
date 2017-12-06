@@ -7,12 +7,11 @@
 #include <atomic>
 #include <time.h>
 
-// bd added nov17
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <stdint.h> // portable: uint64_t   MSVC: __int64 
-
 #if defined WIN32 || defined _WIN32 || defined WINCE
+    // bd added nov17
+    #define WIN32_LEAN_AND_MEAN
+    #include <stdint.h> // portable: uint64_t   MSVC: __int64 
+
 	#include <windows.h>
 	#include <algorithm>
     
