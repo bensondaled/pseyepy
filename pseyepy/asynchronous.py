@@ -14,7 +14,7 @@ class CamDump(threading.Thread):
         self.cam = cam
         self.ques = ques
 
-        if isinstance(self.ques, (mp.queues.Queue, queue.Queue)):
+        if isinstance(self.ques, (mp.Queue, queue.Queue)):
             self.ques = [self.ques]
 
         self.kill = threading.Event()
