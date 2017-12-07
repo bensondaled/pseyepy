@@ -24,7 +24,7 @@ class CamDump(threading.Thread):
     def run(self):
 
         while not self.kill.is_set():
-            #time.sleep(0.004) # wait 4ms, necessary for smooth operation, shouldn't affect framerates b/c this is a thread
+            time.sleep(0.005) # wait 5ms, necessary for smooth operation, shouldn't affect framerates b/c this is a thread
             frame,ts = self.cam.read(timestamp=True, squeeze=False)
 
             for que in self.ques:
