@@ -1,4 +1,5 @@
 import threading
+import queue
 import multiprocessing as mp
 import time
 
@@ -13,11 +14,11 @@ class CamDump(threading.Thread):
         self.cam = cam
         self.ques = ques
 
-        if isinstance(self.ques, mp.queues.Queue):
+        if isinstance(self.ques, (mp.queues.Queue, queue.Queue)):
             self.ques = [self.ques]
 
-        self.kill = mp.Event()
-        self.done = mp.Event()
+        self.kill = threading.Event()
+        self.done = threading.Event()
         
         self.start()
 

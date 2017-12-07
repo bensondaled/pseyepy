@@ -1,4 +1,5 @@
 import threading
+import queue
 import multiprocessing as mp
 import subprocess as sp
 import numpy as np
@@ -134,8 +135,8 @@ def generate_movie_params(cam, file_name, **kw):
             colour = cam.colour[i],
             ) for i in range(len(cam.ids)) ]
 
-    for mp in movie_params:
-        mp.update(kw)
+    for mpr in movie_params:
+        mpr.update(kw)
 
     return movie_params
 
@@ -152,9 +153,9 @@ class Stream():
 
         if self.file_name is not None:
             movie_params = generate_movie_params(self.cam, self.file_name, **kwargs)
-            self.ques['file'] = mp.Queue()
+            self.ques['file'] = queue.Queue()
         if display:
-            self.ques['display'] = mp.Queue()
+            self.ques['display'] = queue.Queue()
 
         self.cd = CamDump(self.cam, ques=list(self.ques.values()))
 
@@ -180,8 +181,8 @@ class Writer(threading.Thread):
         self.movie_params = movie_params
         if isinstance(self.movie_params, dict):
             self.movie_params = [self.movie_params]
-        self.kill = mp.Event()
-        self.done = mp.Event()
+        self.kill = threading.Event()
+        self.done = threading.Event()
 
         self.start()
 
