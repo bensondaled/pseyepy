@@ -1,5 +1,6 @@
 import threading
 import multiprocessing as mp
+import time
 
 class CamDump(threading.Thread):
     """Continually reads from a camera and dumps into queue/s
@@ -23,6 +24,7 @@ class CamDump(threading.Thread):
     def run(self):
 
         while not self.kill.is_set():
+            time.sleep(0.004) # wait 4ms, necessary for smooth operation, shouldn't affect framerates b/c this is a thread
             frame,ts = self.cam.read(timestamp=True, squeeze=False)
 
             for que in self.ques:
