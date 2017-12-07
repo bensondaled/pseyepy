@@ -165,9 +165,9 @@ class Stream():
             d = Display(lambda: self.ques['display'].get(block=False))
 
     def end(self):
+        self.cd.end()
         if self.file_name is not None:
             self.w.end()
-        self.cd.end()
 
 class Writer(threading.Thread):
     """Continually reads from a queue and writes to a file
