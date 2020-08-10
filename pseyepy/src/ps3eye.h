@@ -27,7 +27,6 @@
 #endif
 
 #include <stdint.h>
-#define DEBUG 1
 #if defined(DEBUG)
 #define debug(...) fprintf(stdout, __VA_ARGS__)
 #else
