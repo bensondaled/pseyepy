@@ -93,6 +93,7 @@ id2eye(int id)
 void
 ps3eye_init()
 {
+
     if (!ps3eye_context) {
         ps3eye_context = new ps3eye_context_t();
     }
@@ -118,7 +119,7 @@ ps3eye_count_connected()
         // Not init'ed
         return 0;
     }
-
+    debug("Getting Count\n");
     return (int)ps3eye_context->devices.size();
 }
 

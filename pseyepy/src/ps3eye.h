@@ -17,8 +17,7 @@
 #pragma warning(disable : 4200)
 #endif
 
-#include "libusb.h"
-
+#include <libusb-1.0/libusb.h>
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -28,7 +27,7 @@
 #endif
 
 #include <stdint.h>
-
+#define DEBUG 1
 #if defined(DEBUG)
 #define debug(...) fprintf(stdout, __VA_ARGS__)
 #else

@@ -238,10 +238,15 @@ class Camera():
         self._shape = [(y,x,d) if d>1 else (y,x) for y,x,d in zip(self._h, self._w, self._depth)]
 
         # init context
-        ps3eye_init()
-
+        print("about to init")
+        try:
+            ps3eye_init()
+        except Exception as exc:
+            print exc
         # init all cameras
         count = ps3eye_count_connected()
+        print("pyc count: ")
+        print count
         self.buffers = {}
         for idx,_id in enumerate(ids):
             if _id >= count:

@@ -426,6 +426,9 @@ int USBMgr::listDevices( std::vector<PS3EYECam::PS3EYERef>& list )
 
 	if (cnt < 0) {
 		debug("Error Device scan\n");
+	}else{
+		debug("Found Device scan\n");
+
 	}
 
     cnt = 0;
@@ -435,6 +438,7 @@ int USBMgr::listDevices( std::vector<PS3EYECam::PS3EYERef>& list )
 		libusb_get_device_descriptor(dev, &desc);
 		if (desc.idVendor == PS3EYECam::VENDOR_ID && desc.idProduct == PS3EYECam::PRODUCT_ID)
 		{
+			debug("Trying Open\n");
 			int err = libusb_open(dev, &devhandle);
 			if (err == 0)
 			{
@@ -442,10 +446,12 @@ int USBMgr::listDevices( std::vector<PS3EYECam::PS3EYERef>& list )
 				list.push_back( PS3EYECam::PS3EYERef( new PS3EYECam(dev) ) );
 				libusb_ref_device(dev);
 				cnt++;
+			}else{
+				debug("Open failed");
 			}
 		}
 	}
-
+	debug("found num of cams: %d\n",cnt);
 	libusb_free_device_list(devs, 1);
 
     return cnt;
@@ -1025,10 +1031,13 @@ const std::vector<PS3EYECam::PS3EYERef>& PS3EYECam::getDevices( bool forceRefres
         return devices;
 
     devices.clear();
+		debug("listing devices\n");
 
     USBMgr::instance()->sTotalDevices = USBMgr::instance()->listDevices(devices);
 
     devicesEnumerated = true;
+			debug("returning devices\n");
+
     return devices;
 }
 
@@ -1143,6 +1152,7 @@ bool PS3EYECam::init(uint32_t width, uint32_t height, uint16_t desiredFrameRate,
 
 void PS3EYECam::start()
 {
+	debug("trying start\n");
     if(is_streaming) return;
     
 	if (frame_width == 320) {	/* 320x240 */
@@ -1264,7 +1274,7 @@ bool PS3EYECam::open_usb()
 	}
 
 	//libusb_set_configuration(handle_, 0);
-
+	libusb_detach_kernel_driver(handle_,0);
 	res = libusb_claim_interface(handle_, 0);
 	if(res != 0) {
 		debug("device claim interface error: %d\n", res);
@@ -1279,6 +1289,7 @@ void PS3EYECam::close_usb()
 	debug("closing device\n");
 	libusb_release_interface(handle_, 0);
 	libusb_close(handle_);
+	libusb_attach_kernel_driver(handle_,0);
 	libusb_unref_device(device_);
 	handle_ = NULL;
 	device_ = NULL;
