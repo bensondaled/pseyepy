@@ -4,8 +4,6 @@ If you're making use of this package, please let me know!
 
 I'll be motivated to improve and maintain it if people are benefiting from it.
 
-Reach me at: deverett[at]princeton[dot]edu
-
 ----------------------
 ### About this package
 
