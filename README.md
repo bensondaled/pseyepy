@@ -135,6 +135,7 @@ s.end()
   * In general it is recommended to restart the python process before each camera use; it's not technically necessary but it helps avoid some issues.
   * The on-board camera settings can be wonky; changing them in a particular order can have specific effects, that sometimes prove irreversible until you restart the program.
   * The Stream writer currently can drop ~0.01% of frames (likely from the very end of the recording only, details still unclear)
+  * On Ubuntu 18.04 in order to get pseyepy to work in some instances it was necessary to install libusb. This could be done through ```sudo apt-get install libusb-1.0-0-dev``` or, if in a conda environment, with ```conda install -c conda-forge libusb```
 
 ---------
 ### Todo
