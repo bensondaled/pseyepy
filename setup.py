@@ -4,37 +4,45 @@ from distutils.extension import Extension
 from sysconfig import get_paths
 import os, sys
 import warnings
+import platform
 import subprocess
 
 ### install libusb
 # keeping this slightly hacky approach to guarantee that the correct libusb is used and is easily findable
 if sys.platform in ('darwin','linux','linux2'):
-    python_data_path = get_paths()['data']
-
-    wd = os.path.join('.','pseyepy','ext')
-    subprocess.call('tar -jxf libusb-1.0.21.tar.bz2', cwd=wd, shell=True)
-
-    wd = os.path.join('.','pseyepy','ext','libusb-1.0.21')
-    subprocess.call('sudo ./configure --prefix={}'.format(python_data_path), cwd=wd, shell=True)
-    subprocess.call('make clean', cwd=wd, shell=True)
-    subprocess.call('sudo make', cwd=wd, shell=True)
-    subprocess.call('sudo make install', cwd=wd, shell=True)
-
-    wd = os.path.join('.','pseyepy','ext')
-    subprocess.call('mkdir -p include && mkdir -p lib', cwd=wd, shell=True)
-
-    src_include = os.path.join(python_data_path, 'include', 'libusb-1.0')
-    dest_include = os.path.join('.', 'pseyepy', 'ext', 'include', 'libusb-1.0')
-    subprocess.call(['ln -s {} {}'.format(src_include, dest_include)], shell=True, cwd='.')
-
-    for ln in ['libusb-1.0.0.dylib', 'libusb-1.0.a', 'libusb-1.0.dylib', 'libusb-1.0.la']:
-        src_lib = os.path.join(python_data_path, 'lib', ln)
-        dest_lib = os.path.join('.', 'pseyepy', 'ext', 'lib', ln)
-        subprocess.call(['ln -s {} {}'.format(src_lib, dest_lib)], shell=True, cwd='.')
-
-    libusb_incl = ['pseyepy/ext/include/libusb-1.0']
-    libusb_libpath = 'pseyepy/ext/lib'
     libs = ['usb-1.0']
+    if '22.04' in platform.version():
+        subprocess.call("sudo apt install libusb-1.0-0-dev", shell=True)
+        libusb_incl = ['/usr/include/libusb-1.0']
+        libusb_libpath = '/usr/lib/x86_64-linux-gnu'
+    else:
+        # install how it worked on previous versions
+
+        python_data_path = get_paths()['data']
+
+        wd = os.path.join('.','pseyepy','ext')
+        subprocess.call('tar -jxf libusb-1.0.21.tar.bz2', cwd=wd, shell=True)
+
+        wd = os.path.join('.','pseyepy','ext','libusb-1.0.21')
+        subprocess.call('sudo ./configure --prefix={}'.format(python_data_path), cwd=wd, shell=True)
+        subprocess.call('make clean', cwd=wd, shell=True)
+        subprocess.call('sudo make', cwd=wd, shell=True)
+        subprocess.call('sudo make install', cwd=wd, shell=True)
+
+        wd = os.path.join('.','pseyepy','ext')
+        subprocess.call('mkdir -p include && mkdir -p lib', cwd=wd, shell=True)
+
+        src_include = os.path.join(python_data_path, 'include', 'libusb-1.0')
+        dest_include = os.path.join('.', 'pseyepy', 'ext', 'include', 'libusb-1.0')
+        subprocess.call(['ln -s {} {}'.format(src_include, dest_include)], shell=True, cwd='.')
+
+        for ln in ['libusb-1.0.0.dylib', 'libusb-1.0.a', 'libusb-1.0.dylib', 'libusb-1.0.la']:
+            src_lib = os.path.join(python_data_path, 'lib', ln)
+            dest_lib = os.path.join('.', 'pseyepy', 'ext', 'lib', ln)
+            subprocess.call(['ln -s {} {}'.format(src_lib, dest_lib)], shell=True, cwd='.')
+
+        libusb_incl = ['pseyepy/ext/include/libusb-1.0']
+        libusb_libpath = 'pseyepy/ext/lib'
 
 elif sys.platform.startswith('win'):
     # precompiled library from:
@@ -55,7 +63,7 @@ elif sys.platform.startswith('win'):
 os.environ["CC"]= "g++"
 srcs = ['pseyepy/src/ps3eye.cpp','pseyepy/src/ps3eye_capi.cpp','pseyepy/cameras.pyx']
 extensions = [  Extension('pseyepy.cameras',
-                srcs, 
+                srcs,
                 language='c++',
                 extra_compile_args=['-std=c++11'],
                 extra_link_args=['-std=c++11'],
