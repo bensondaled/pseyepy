@@ -242,11 +242,11 @@ class Camera():
         try:
             ps3eye_init()
         except Exception as exc:
-            print exc
+            print (exc)
         # init all cameras
         count = ps3eye_count_connected()
         print("pyc count: ")
-        print count
+        print (count)
         self.buffers = {}
         for idx,_id in enumerate(ids):
             if _id >= count:

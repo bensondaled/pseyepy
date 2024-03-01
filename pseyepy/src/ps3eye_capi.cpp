@@ -26,6 +26,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  **/
 
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
 
 #include "ps3eye_capi.h"
 #include "ps3eye.h"
@@ -184,8 +186,10 @@ ps3eye_grab_frame(int id, unsigned char* frame)
         // Eye is not a valid handle
         return 0;
     }
-
-	timestamp = eye->eye->getFrame(frame);
+    // Unlock the GIL during this blocking call here
+    Py_BEGIN_ALLOW_THREADS
+	  timestamp = eye->eye->getFrame(frame);
+    Py_END_ALLOW_THREADS
 
     return timeval2int(timestamp); // timestamp is in microseconds
 }
