@@ -1,0 +1,10 @@
+# Runtime and common build-time dependencies for development
+# Install these in your virtualenv before running `python setup.py` or `pip install .`
+Cython>=0.29
+numpy
+Pillow
+h5py
+setuptools
+
+# Optional (only if you need OpenCV-backed writers/display)
+# opencv-python
