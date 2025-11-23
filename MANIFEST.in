@@ -1,0 +1,4 @@
+include pseyepy/ext/win/lib/*
+include pseyepy/ext/win/include/*
+include pseyepy/THIRD_PARTY_NOTICES.txt
+recursive-include pseyepy/_libs *

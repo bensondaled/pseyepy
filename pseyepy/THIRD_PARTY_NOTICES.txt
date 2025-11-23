@@ -1,0 +1,13 @@
+libusb-1.0
+
+libusb (https://github.com/libusb/libusb) is distributed under the GNU Lesser General Public License v2.1 (LGPL-2.1).
+
+This package includes a prebuilt Windows binary `libusb-1.0.dll` obtained from the libusb project or built from upstream source. libusb is licensed under the LGPL v2.1; by distributing that binary we comply with the LGPL by providing this notice and by making the source code available on request.
+
+Where to get source
+- Official repo: https://github.com/libusb/libusb
+
+License text (short):
+This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
+
+Full license text and copyright are available from the libusb project and should be included alongside redistributed binaries when required by local regulations. If you need a copy of the exact source that was used to build the distributed DLL, please open an issue or contact the maintainers and we will provide it or a written offer as required by the LGPL.

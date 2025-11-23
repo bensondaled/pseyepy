@@ -1,0 +1,141 @@
+GNU LESSER GENERAL PUBLIC LICENSE
+                   Version 2.1, February 1999
+
+Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+
+Preamble
+
+The licenses for most software are designed to take away your
+freedom to share and change it.  By contrast, the GNU General Public
+Licenses are intended to guarantee your freedom to share and change
+free software--to make sure the software is free for all its users.
+
+This license, the Lesser General Public License, applies to some
+specially designated software packages--typically libraries--of the
+Free Software Foundation and to certain other software designed to be
+useful with such libraries.  The LGPL gives developers and companies
+the right to link to open source libraries and distribute code that
+uses those libraries under terms of their choice, while ensuring that
+improvements to the LGPL-covered components remain available to the
+community under the same license.
+
+(Full text of the GNU Lesser General Public License v2.1 follows.)
+
+---- FULL LICENSE BELOW ----
+
+                    GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+                            Preamble
+
+  The licenses for most software are designed to take away your
+freedom to share and change it.  By contrast, the GNU General Public
+Licenses are intended to guarantee your freedom to share and change
+free software--to make sure the software is free for all its users.
+
+  This license, the Lesser General Public License, applies to some
+specially designated software packages--typically libraries--of the
+Free Software Foundation and to certain other software designed to be
+useful with those libraries.  The LGPL permits developers and
+companies to use and integrate LGPLed software into their own (even
+proprietary) software without being required to release the source
+code of their own components, under certain conditions described in
+this license.
+
+  When a program links to a library, whether statically or dynamically,
+the combination of the two is legally speaking a derivative work of the
+library, and the terms of the LGPL apply to the combined work in the
+sense that the user must be able to modify and relink the LGPL-covered
+library. This license ensures that the library itself remains free,
+while allowing it to be used by non-(L)GPLed programs.
+
+  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. This License Agreement applies to any software library or other
+  program which contains a notice placed by the copyright holder or
+  other authorized party saying it may be distributed under the terms
+  of this Lesser General Public License (also called "this License").
+  Each licensee is addressed as "you".
+
+  1. You may copy and distribute verbatim copies of the Library's
+  complete source code as you receive it, in any medium, provided that
+  you conspicuously and appropriately publish on each copy an
+  appropriate copyright notice and disclaimer of warranty; keep intact
+  all the notices that refer to this License and to the absence of any
+  warranty; and give any other recipients of the Library a copy of
+  this License along with the Library.
+
+  2. You may modify your copy or copies of the Library or any portion
+  of it, thus forming a work based on the Library, and copy and
+  distribute such modifications or work under the terms of Section 1
+  above, provided that you also meet all of these conditions:
+
+    a) The modified work must itself be a software library.
+
+    b) You must cause the files modified to carry prominent notices
+    stating that you changed the files and the date of any change.
+
+    c) You must cause the whole of the work to be licensed at least
+    under the terms of this License to suitable recipient(s) so that
+    they, too, can copy and distribute the modified version of the
+    Library.
+
+  3. You may opt to apply the terms of the ordinary GNU General Public
+  License instead of this License to a given copy of the Library. To
+  do this, you must alter all the notices that refer to this License,
+  so that they refer to the ordinary GNU General Public License, and
+  then follow the procedures indicated in that License.
+
+  4. You may not copy, modify, sublicense, link with, or distribute
+  the Library except as expressly provided under this License. Any
+  attempt otherwise to copy, modify, sublicense, link with, or
+  distribute the Library is void, and will automatically terminate
+  your rights under this License. However, parties who have received
+  copies, or rights, from you under this License will not have their
+  licenses terminated so long as such parties remain in full
+  compliance.
+
+  5. You are not required to accept this License, since you have not
+  signed it. However, nothing else grants you permission to modify or
+  distribute the Library or its derivative works. These actions are
+  prohibited by law if you do not accept this License. Therefore, by
+  modifying or distributing the Library (or any work based on the
+  Library), you indicate your acceptance of this License to do so.
+
+  6. Each time you redistribute the Library (or any work based on the
+  Library), the recipient automatically receives a license from the
+  original licensor to copy, distribute, link with, or modify the
+  Library subject to these terms and conditions. You may not impose any
+  further restrictions on the recipients' exercise of the rights
+  granted herein. You are not responsible for enforcing compliance by
+  third parties with this License.
+
+  7. If, as a consequence of a court judgment or allegation of patent
+  infringement or for any other reason (not limited to patent issues),
+  conditions are imposed on you (whether by court order, agreement or
+  otherwise) that contradict the conditions of this License, they do
+  not excuse you from the conditions of this License. If you cannot
+  distribute so as to satisfy simultaneously your obligations under
+  this License and any other pertinent obligations, then as a
+  consequence you may not distribute the Library at all. For example,
+  if a patent license would not permit royalty-free redistribution of
+  the Library by all those who receive copies directly or indirectly
+  through you, then the only way you could distribute the Library
+  would be to obtain a separate license for each recipient, or to
+  arrange for redistribution in such a way that recipients only
+  receive the Library through some program that on behalf of all
+  recipients receives such a license. However, if you provide a
+  copy of the Library in object code form under the terms of Section
+  6, accompanied by the information required by Section 6, then the
+  recipient is allowed to redistribute the object code version under
+  the terms of this License, subject to the other conditions herein.
+
+(END OF FILE - COPYING contains the full LGPL v2.1 license text.)
