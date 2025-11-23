@@ -47,18 +47,29 @@ elif sys.platform.startswith('win'):
     # https://sleangao.wordpress.com/2015/03/24/using-cython-under-windows-7-with-msvc-compiler/
     warnings.warn('Setup params not yet fully tested for Windows.')
 
-    libusb_incl = [os.path.join('pseyepy', 'ext', 'win', 'include', 'libusb-1.0')]
+    libusb_incl = [os.path.join('pseyepy', 'ext', 'win', 'include')]
     libusb_libpath = 'pseyepy/ext/win/lib'
-    libs = ['libusb-1.0']
+    # Add legacy_stdio_definitions to resolve old stdio symbols in some precompiled libusb builds
+    # Put legacy_stdio_definitions first so the linker can resolve symbols required by the provided libusb
+    libs = ['legacy_stdio_definitions', 'libusb-1.0']
 
 ### setup params
-os.environ["CC"]= "g++"
 srcs = ['pseyepy/src/ps3eye.cpp','pseyepy/src/ps3eye_capi.cpp','pseyepy/cameras.pyx']
+
+# Platform-specific compiler/linker flags
+if sys.platform.startswith('win'):
+    extra_compile_args = []
+    extra_link_args = []
+else:
+    os.environ["CC"] = "g++"
+    extra_compile_args = ['-std=c++11']
+    extra_link_args = ['-std=c++11']
+
 extensions = [  Extension('pseyepy.cameras',
-                srcs, 
+                srcs,
                 language='c++',
-                extra_compile_args=['-std=c++11'],
-                extra_link_args=['-std=c++11'],
+                extra_compile_args=extra_compile_args,
+                extra_link_args=extra_link_args,
                 include_dirs=['pseyepy/src']+libusb_incl,
                 library_dirs=[libusb_libpath],
                 libraries=libs,
