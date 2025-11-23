@@ -1,6 +1,18 @@
 ### *pseyepy:* a python API for acquisition, display, and saving of video from the PS3Eye camera
 
 ----------------------
+
+> **📦 Windows-Ready Fork**  
+> This is a fork of [bensondaled/pseyepy](https://github.com/bensondaled/pseyepy) with **full Windows support**. The original project had broken Windows builds due to Python 2 compatibility issues and missing MSVC-built dependencies. This fork provides:
+> - ✅ **Python 3.13+ support** with fixed Cython code
+> - ✅ **Windows 10/11 native builds** using Visual Studio 2022 (MSVC)
+> - ✅ **Pre-built libusb binaries** included for seamless Windows installation
+> - ✅ **Modern packaging** with `pyproject.toml` for PEP 517/518 compliance
+> - ✅ **Works out-of-the-box**: `pip install .` just works on Windows
+>
+> See [Changes_windows-install.md](Changes_windows-install.md) for detailed technical changes.
+
+----------------------
 ### About this package
 
 *pseyepy* is a lightweight, cross-platform, and open-source Python interface to the Playstation PS3Eye USB camera. Its core is a wrapper of a C API that derives from the excellent [PS3EYEDriver project](https://github.com/inspirit/PS3EYEDriver). 
@@ -25,6 +37,41 @@ The important features are:
 
 ----------------
 ### Installation
+
+#### Windows (This Fork)
+
+**Prerequisites:**
+- Python 3.8 or later
+- Visual Studio 2022 Build Tools or Visual Studio 2022 (for compilation)
+- Git (to clone the repository)
+
+**Quick Install:**
+```bash
+# Clone this fork
+git clone https://github.com/anmagx/pseyepy.git
+cd pseyepy
+
+# Create a virtual environment (recommended)
+python -m venv .venv
+.venv\Scripts\activate
+
+# Install
+pip install .
+```
+
+**What's Included:**
+- Pre-built MSVC-compatible `libusb-1.0.dll` (no manual libusb setup needed!)
+- All Python 3 compatibility fixes
+- Proper MSVC compiler flags and build configuration
+
+**Testing:**
+```python
+import pseyepy
+from pseyepy import cam_count
+print(f"Cameras detected: {cam_count()}")
+```
+
+#### Linux / macOS (Original Instructions)
 
 Installation has not yet been thoroughly tested on all platforms. Eventually I will get around to enabling a pip install. For now:
 
@@ -136,6 +183,19 @@ s.end()
   * The on-board camera settings can be wonky; changing them in a particular order can have specific effects, that sometimes prove irreversible until you restart the program.
   * The Stream writer currently can drop ~0.01% of frames (likely from the very end of the recording only, details still unclear)
   * On Ubuntu 18.04 in order to get pseyepy to work in some instances it was necessary to install libusb. This could be done through ```sudo apt-get install libusb-1.0-0-dev``` or, if in a conda environment, with ```conda install -c conda-forge libusb```
+  * **Windows-specific**: If you get `ImportError: DLL load failed`, ensure you're using Python 3.8+ and Visual Studio 2022 Build Tools are installed
+
+---------------------------------------
+### Third-Party Components
+
+This package includes:
+- **libusb-1.0** (LGPL v2.1): Pre-built Windows DLL for USB device access
+  - License: GNU Lesser General Public License v2.1
+  - Source: https://github.com/libusb/libusb
+  - Full license text: See `pseyepy/_libs/COPYING`
+  - The LGPL allows this library to be used with Apache-licensed code via dynamic linking
+
+For full third-party notices, see [THIRD_PARTY_NOTICES.txt](pseyepy/THIRD_PARTY_NOTICES.txt)
 
 ---------
 ### Todo
@@ -143,3 +203,18 @@ s.end()
   * more documentation
   * build a multithreaded cython option for camera streaming to free the main process
   * importantly: without a threading implementation, Stream to file with cameras of different framerates will result in lowest for all
+
+---------
+### Contributing
+
+Contributions are greatly appreciated! This fork focuses on Windows compatibility and modern Python support. If you encounter issues or have improvements, please open an issue or pull request.
+
+**Upstream**: This is a fork of [bensondaled/pseyepy](https://github.com/bensondaled/pseyepy). Consider contributing improvements back to the original project where applicable.
+
+### License
+
+This project is licensed under the **Apache License 2.0** - see [LICENSE](LICENSE) for details.
+
+**Third-party dependencies**:
+- libusb-1.0 is licensed under **LGPL v2.1** and is dynamically linked (see `pseyepy/_libs/COPYING`)
+- PS3EYEDriver components maintain their original licenses

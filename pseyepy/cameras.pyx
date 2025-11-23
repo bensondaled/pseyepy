@@ -118,7 +118,7 @@ def _setattr_wrapper(name):
     def result(obj, val):
         cl = getattr(obj, name)
         
-        if isinstance(val, (bool, long, float, int)):
+        if isinstance(val, (bool, int, float)):
             # attributes are always CtrlLists, so an attempt to set them with a scalar means that all elements of the list should be set to this one value
             cl[:] = val
         elif isinstance(val, (list, np.ndarray, tuple)):
@@ -200,7 +200,7 @@ class Camera():
         Note that some of these settings interact with each other in strange ways, and you may find it difficult to return to a particular parameter set without restarting the program.
         """
 
-        if isinstance(ids, (int, float, long)):
+        if isinstance(ids, (int, float)):
             ids = [ids]
         elif isinstance(ids, (tuple, np.ndarray)):
             ids = list(ids)
@@ -208,20 +208,20 @@ class Camera():
             ids = list(range(cam_count()))
         self._ids = ids
 
-        if isinstance(resolution, (int, float, long)):
+        if isinstance(resolution, (int, float)):
             resolution = [self._RESOLUTION[resolution]] * len(ids)
         elif isinstance(resolution, (tuple, list, np.ndarray)):
             assert len(resolution) == len(ids)
-            assert all([isinstance(r, (int, float, long)) for r in resolution])
+            assert all([isinstance(r, (int, float)) for r in resolution])
             resolution = [self._RESOLUTION[r] for r in resolution]
         self._resolution = resolution
         self._w, self._h = zip(*resolution)
 
-        if isinstance(fps, (int, float, long)):
+        if isinstance(fps, (int, float)):
             fps = [fps] * len(ids)
         elif isinstance(fps, (tuple, list, np.ndarray)):
             assert len(fps) == len(ids)
-            assert all([isinstance(f, (int, float, long)) for f in fps])
+            assert all([isinstance(f, (int, float)) for f in fps])
         self._fps = fps
 
         if isinstance(colour, bool):
@@ -242,11 +242,11 @@ class Camera():
         try:
             ps3eye_init()
         except Exception as exc:
-            print exc
+            print(exc)
         # init all cameras
         count = ps3eye_count_connected()
         print("pyc count: ")
-        print count
+        print(count)
         self.buffers = {}
         for idx,_id in enumerate(ids):
             if _id >= count:
@@ -304,7 +304,7 @@ class Camera():
             idx = list(range(len(self.ids)))
         elif isinstance(idx, (list,np.ndarray)):
             assert all([i<len(self.ids) for i in idx])
-        elif isinstance(idx, (float,int,long)):
+        elif isinstance(idx, (float,int)):
             idx = [idx]
             was_scalar = True
 
