@@ -5,6 +5,7 @@ from sysconfig import get_paths
 import os, sys
 import warnings
 import subprocess
+import shutil
 
 ### install libusb
 # keeping this slightly hacky approach to guarantee that the correct libusb is used and is easily findable
@@ -76,6 +77,18 @@ extensions = [  Extension('pseyepy.cameras',
             )]
 
 ### run setup
+# Ensure packaged `_libs` contains the DLL and license for Windows distributions.
+try:
+    if sys.platform.startswith('win'):
+        src_dll = os.path.join('pseyepy', 'ext', 'win', 'lib', 'libusb-1.0.dll')
+        dest_dir = os.path.join('pseyepy', 'pseyepy', '_libs')
+        os.makedirs(dest_dir, exist_ok=True)
+        if os.path.exists(src_dll):
+            shutil.copy2(src_dll, os.path.join(dest_dir, 'libusb-1.0.dll'))
+except Exception:
+    # Non-fatal; packaging will continue but user should ensure DLL is available
+    pass
+
 setup(  name='pseyepy',
         version='0.0',
         description='pseyepy camera package',
@@ -83,5 +96,6 @@ setup(  name='pseyepy',
         author_email='deverett@princeton.edu',
         url='https://github.com/bensondaled/pseyepy',
         packages=['pseyepy'],
-        package_data={'pseyepy': ['cameras.pyx']},
+        include_package_data=True,
+        package_data={'pseyepy': ['cameras.pyx', 'ext/win/lib/*', '_libs/*', 'ext/win/include/*']},
         ext_modules=cythonize(extensions),)
