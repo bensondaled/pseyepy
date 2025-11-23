@@ -7,13 +7,13 @@ if sys.platform == 'win32':
 	try:
 		pkg_dir = os.path.dirname(__file__)
 
-		# Primary location for packaged DLLs (recommended): `_libs`
-		dll_dirs = [os.path.join(pkg_dir, '_libs'),
-					os.path.join(pkg_dir, 'ext', 'win', 'lib')]
-
-		# Also check for a development-location when running from project root
-		cwd_candidate = os.path.join(os.getcwd(), 'pseyepy', 'ext', 'win', 'lib')
-		dll_dirs.append(cwd_candidate)
+		# Search locations in priority order:
+		# 1. _libs/ - installed package location
+		# 2. ext/win/lib/ - development/build location
+		dll_dirs = [
+			os.path.join(pkg_dir, '_libs'),
+			os.path.join(pkg_dir, 'ext', 'win', 'lib')
+		]
 
 		for dll_dir in dll_dirs:
 			if os.path.isdir(dll_dir):
@@ -22,7 +22,7 @@ if sys.platform == 'win32':
 				except Exception:
 					# Fallback for older Pythons: prepend to PATH
 					os.environ['PATH'] = dll_dir + os.pathsep + os.environ.get('PATH', '')
-				# stop after registering the first valid dir
+				# Stop after registering the first valid directory
 				break
 	except Exception:
 		# Don't fail import just because DLL path setup failed

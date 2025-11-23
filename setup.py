@@ -81,7 +81,7 @@ extensions = [  Extension('pseyepy.cameras',
 try:
     if sys.platform.startswith('win'):
         src_dll = os.path.join('pseyepy', 'ext', 'win', 'lib', 'libusb-1.0.dll')
-        dest_dir = os.path.join('pseyepy', 'pseyepy', '_libs')
+        dest_dir = os.path.join('pseyepy', '_libs')
         os.makedirs(dest_dir, exist_ok=True)
         if os.path.exists(src_dll):
             shutil.copy2(src_dll, os.path.join(dest_dir, 'libusb-1.0.dll'))
