@@ -12,6 +12,8 @@ Run with the project's venv Python to use the built extension:
 import sys
 import traceback
 
+from pseyepy.ui import Display
+
 
 def main():
     try:
@@ -48,6 +50,7 @@ def main():
                 # try a single read from camera 0
                 frames, ts = cam.read(0)
                 print('Read returned. frame type:', type(frames), 'timestamp type:', type(ts))
+                d = Display(cam) # begin the display
                 try:
                     print('Frame shape:', getattr(frames, 'shape', 'N/A'))
                 except Exception:
