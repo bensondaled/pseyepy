@@ -1,6 +1,6 @@
-from distutils.core import setup
+from setuptools import setup
 from Cython.Build import cythonize
-from distutils.extension import Extension
+from setuptools import Extension
 from sysconfig import get_paths
 import os, sys
 import warnings
