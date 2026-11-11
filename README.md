@@ -77,7 +77,11 @@ Installation has not yet been thoroughly tested on all platforms. Eventually I w
 
 0. (If you are on Windows: download & install libusb; Mac and Linux are handled without this step)
 1. Download the source code, unzip, and navigate to the root directory
-2. `sudo python setup.py install`
+2. `python setup.py install` (or `pip install .`)
+
+No `sudo` is needed: the build uses the system libusb when it can find it
+(Homebrew, pkg-config, or `/usr/local`) and otherwise builds the bundled copy
+inside the virtualenv.
 
 If that does not work, it's likely a libusb issue. Try adjusting paths such that libusb paths are included by default.
 

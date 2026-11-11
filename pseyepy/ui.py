@@ -2,14 +2,18 @@ import tkinter as tk
 import threading
 import time
 import numpy as np
-from PIL import Image, ImageTk
+try:
+    from PIL import Image, ImageTk
+except (ImportError, ModuleNotFoundError):
+    Image = ImageTk = None
 
 from .cameras import Camera
 
 class Display(tk.Tk):
 
     def __init__(self, grab_fxn=None, refresh_rate=45, onexit=[]):
-     
+        if Image is None:
+            raise ImportError("Display requires Pillow (pip install Pillow)")
         tk.Tk.__init__(self, None)
         scrn_w = self.winfo_screenwidth()
         scrn_h = self.winfo_screenheight()

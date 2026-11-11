@@ -62,12 +62,13 @@ struct ps3eye_t {
         eye->init(width, height, (uint8_t)fps, (ps3eye::PS3EYECam::EOutputFormat)outputFormat);
         eye->start();
         ps3eye_context->opened_devices[id] = this;
+        this->id = id;
     }
 
     ~ps3eye_t()
     {
         eye->stop();
-        ps3eye_context->opened_devices.erase(id);
+        ps3eye_context->opened_devices.erase(this->id);
     }
 
     // Per-device context

@@ -562,8 +562,8 @@ public:
 		uint8_t*		dest_row		= outBuffer + dest_stride + 1; 	// We start outputting at the second pixel of the second row's G component
 		uint32_t R,G,B;
 		
-		// Fill rows 1 to height-1 of the destination buffer. First and last row are filled separately (they are copied from the second row and second-to-last rows respectively)
-		for (int y = 0; y < frame_height-1; source_row += source_stride, dest_row += dest_stride, ++y)
+		// Fill rows 1 to height-2 of the destination buffer. First and last row are filled separately (they are copied from the second row and second-to-last rows respectively)
+		for (int y = 0; y < frame_height-2; source_row += source_stride, dest_row += dest_stride, ++y)
 		{
 			const uint8_t* source		= source_row;
 			const uint8_t* source_end	= source + (source_stride-2);								// -2 to deal with the fact that we're starting at the second pixel of the row and should end at the second-to-last pixel of the row (first and last are filled separately)
@@ -663,8 +663,8 @@ public:
 		uint8_t*		dest_row				= outBuffer + dest_stride + num_output_channels + 1; 	// We start outputting at the second pixel of the second row's G component
 		int				swap_br					= inBGR ? 1 : -1;
 
-		// Fill rows 1 to height-1 of the destination buffer. First and last row are filled separately (they are copied from the second row and second-to-last rows respectively)
-		for (int y = 0; y < frame_height-1; source_row += source_stride, dest_row += dest_stride, ++y)
+		// Fill rows 1 to height-2 of the destination buffer. First and last row are filled separately (they are copied from the second row and second-to-last rows respectively)
+		for (int y = 0; y < frame_height-2; source_row += source_stride, dest_row += dest_stride, ++y)
 		{
 			const uint8_t* source		= source_row;
 			const uint8_t* source_end	= source + (source_stride-2);								// -2 to deal with the fact that we're starting at the second pixel of the row and should end at the second-to-last pixel of the row (first and last are filled separately)
@@ -779,6 +779,8 @@ public:
 		frame_size				(0),
 		frame_queue				(NULL)
 	{
+		for (int index = 0; index < NUM_TRANSFERS; ++index)
+			xfr[index] = NULL;
 	}
 
 	~URBDesc()
@@ -831,14 +833,30 @@ public:
 		if (num_active_transfers == 0)
 			return;
 
-		// Cancel any pending transfers
+		// Cancel any pending transfers. Slots already detached by the
+		// completion callback are NULL and must be skipped: calling
+		// libusb_cancel_transfer() on a freed transfer is a use-after-free,
+		// because libusb_free_transfer() destroys the transfer's internal
+		// mutex and libusb_cancel_transfer() locks it.
 		for (int index = 0; index < NUM_TRANSFERS; ++index)
 		{
-			libusb_cancel_transfer(xfr[index]);
+			if (xfr[index] != NULL)
+				libusb_cancel_transfer(xfr[index]);
 		}
 
 		// Wait for cancelation to finish
 		num_active_transfers_condition.wait(lock, [this]() { return num_active_transfers == 0; });
+
+		// Free whatever the callbacks did not already free, and clear the
+		// slots so that a later close_transfers() cannot touch them again.
+		for (int index = 0; index < NUM_TRANSFERS; ++index)
+		{
+			if (xfr[index] != NULL)
+			{
+				libusb_free_transfer(xfr[index]);
+				xfr[index] = NULL;
+			}
+		}
 
 		USBMgr::instance()->cameraStopped();
 
@@ -854,6 +872,22 @@ public:
 		std::lock_guard<std::mutex> lock(num_active_transfers_mutex);
 		--num_active_transfers;
 		num_active_transfers_condition.notify_one();
+	}
+
+	// Remove a transfer from the array *before* it is freed, so that
+	// close_transfers() can never call libusb_cancel_transfer() on a
+	// dangling pointer.
+	void detach_transfer(libusb_transfer *transfer)
+	{
+		std::lock_guard<std::mutex> lock(num_active_transfers_mutex);
+		for (int index = 0; index < NUM_TRANSFERS; ++index)
+		{
+			if (xfr[index] == transfer)
+			{
+				xfr[index] = NULL;
+				return;
+			}
+		}
 	}
 
 	void frame_add(enum gspca_packet_type packet_type, const uint8_t *data, int len)
@@ -1000,6 +1034,11 @@ static void LIBUSB_CALL transfer_completed_callback(struct libusb_transfer *xfr)
     {
         debug("transfer status %d\n", status);
 
+        // Detach the transfer from the URBDesc *before* freeing it: the slot
+        // must not point at freed memory when close_transfers() walks the
+        // array, otherwise it would cancel a transfer whose internal mutex
+        // has already been destroyed by libusb_free_transfer().
+        urb->detach_transfer(xfr);
         libusb_free_transfer(xfr);
 		urb->transfer_canceled();
         

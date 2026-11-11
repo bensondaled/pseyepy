@@ -10,32 +10,70 @@ import shutil
 ### install libusb
 # keeping this slightly hacky approach to guarantee that the correct libusb is used and is easily findable
 if sys.platform in ('darwin','linux','linux2'):
-    python_data_path = get_paths()['data']
+    found = False
+    # 1. Prefer existing Homebrew or system libusb
+    candidate_prefixes = []
+    try:
+        brew_p = subprocess.check_output(['brew', '--prefix', 'libusb'], stderr=subprocess.DEVNULL).decode().strip()
+        if brew_p:
+            candidate_prefixes.append(brew_p)
+    except Exception:
+        pass
+    candidate_prefixes.extend(['/opt/homebrew/opt/libusb', '/usr/local/opt/libusb', '/opt/homebrew', '/usr/local', '/usr'])
+    for p in candidate_prefixes:
+        hdr = os.path.join(p, 'include', 'libusb-1.0', 'libusb.h')
+        if os.path.exists(hdr):
+            libusb_incl = [os.path.join(p, 'include', 'libusb-1.0'), os.path.join(p, 'include')]
+            libusb_libpath = os.path.join(p, 'lib')
+            libs = ['usb-1.0']
+            found = True
+            break
 
-    wd = os.path.join('.','pseyepy','ext')
-    subprocess.call('tar -jxf libusb-1.0.21.tar.bz2', cwd=wd, shell=True)
+    if not found:
+        try:
+            cflags = subprocess.check_output(['pkg-config', '--cflags-only-I', 'libusb-1.0'], stderr=subprocess.DEVNULL).decode().strip()
+            ldflags = subprocess.check_output(['pkg-config', '--libs-only-L', 'libusb-1.0'], stderr=subprocess.DEVNULL).decode().strip()
+            incl = [x[2:].strip() for x in cflags.split() if x.startswith('-I')]
+            libpath = [x[2:].strip() for x in ldflags.split() if x.startswith('-L')]
+            if incl:
+                libusb_incl = incl
+                libusb_libpath = libpath[0] if libpath else ''
+                libs = ['usb-1.0']
+                found = True
+        except Exception:
+            pass
 
-    wd = os.path.join('.','pseyepy','ext','libusb-1.0.21')
-    subprocess.call('sudo ./configure --prefix={}'.format(python_data_path), cwd=wd, shell=True)
-    subprocess.call('make clean', cwd=wd, shell=True)
-    subprocess.call('sudo make', cwd=wd, shell=True)
-    subprocess.call('sudo make install', cwd=wd, shell=True)
+    if not found:
+        python_data_path = get_paths()['data']
+        wd = os.path.join('.','pseyepy','ext')
+        subprocess.call('tar -jxf libusb-1.0.21.tar.bz2', cwd=wd, shell=True)
+        wd = os.path.join('.','pseyepy','ext','libusb-1.0.21')
+        subprocess.call('./configure --prefix={}'.format(python_data_path), cwd=wd, shell=True)
+        subprocess.call('make clean', cwd=wd, shell=True)
+        subprocess.call('make', cwd=wd, shell=True)
+        subprocess.call('make install', cwd=wd, shell=True)
+        wd = os.path.join('.','pseyepy','ext')
+        os.makedirs(os.path.join(wd, 'include'), exist_ok=True)
+        os.makedirs(os.path.join(wd, 'lib'), exist_ok=True)
+        src_include = os.path.join(python_data_path, 'include', 'libusb-1.0')
+        dest_include = os.path.join('.', 'pseyepy', 'ext', 'include', 'libusb-1.0')
+        if not os.path.exists(dest_include):
+            try:
+                os.symlink(src_include, dest_include)
+            except Exception:
+                pass
+        for ln in ['libusb-1.0.0.dylib', 'libusb-1.0.a', 'libusb-1.0.dylib', 'libusb-1.0.la', 'libusb-1.0.so', 'libusb-1.0.so.0']:
+            src_lib = os.path.join(python_data_path, 'lib', ln)
+            dest_lib = os.path.join('.', 'pseyepy', 'ext', 'lib', ln)
+            if os.path.exists(src_lib) and not os.path.exists(dest_lib):
+                try:
+                    os.symlink(src_lib, dest_lib)
+                except Exception:
+                    pass
+        libusb_incl = ['pseyepy/ext/include/libusb-1.0']
+        libusb_libpath = 'pseyepy/ext/lib'
+        libs = ['usb-1.0']
 
-    wd = os.path.join('.','pseyepy','ext')
-    subprocess.call('mkdir -p include && mkdir -p lib', cwd=wd, shell=True)
-
-    src_include = os.path.join(python_data_path, 'include', 'libusb-1.0')
-    dest_include = os.path.join('.', 'pseyepy', 'ext', 'include', 'libusb-1.0')
-    subprocess.call(['ln -s {} {}'.format(src_include, dest_include)], shell=True, cwd='.')
-
-    for ln in ['libusb-1.0.0.dylib', 'libusb-1.0.a', 'libusb-1.0.dylib', 'libusb-1.0.la']:
-        src_lib = os.path.join(python_data_path, 'lib', ln)
-        dest_lib = os.path.join('.', 'pseyepy', 'ext', 'lib', ln)
-        subprocess.call(['ln -s {} {}'.format(src_lib, dest_lib)], shell=True, cwd='.')
-
-    libusb_incl = ['pseyepy/ext/include/libusb-1.0']
-    libusb_libpath = 'pseyepy/ext/lib'
-    libs = ['usb-1.0']
 
 elif sys.platform.startswith('win'):
     # precompiled library from:
@@ -98,4 +136,5 @@ setup(  name='pseyepy',
         packages=['pseyepy'],
         include_package_data=True,
         package_data={'pseyepy': ['cameras.pyx', 'ext/win/lib/*', '_libs/*', 'ext/win/include/*']},
+        install_requires=['numpy'],
         ext_modules=cythonize(extensions),)

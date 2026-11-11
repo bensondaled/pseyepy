@@ -5,14 +5,18 @@ import subprocess as sp
 import numpy as np
 import time
 import os
-import queue
-import h5py
 try:
     import cv2
 except ImportError:
     cv2 = None
 from .asynchronous import CamDump
-from .ui import Display
+# tkinter is not part of every Python build (Homebrew's python@3.14 ships
+# without it unless python-tk is installed), and importing pseyepy must not
+# depend on a GUI toolkit. Only Stream(display=True) needs it.
+try:
+    from .ui import Display
+except (ImportError, ModuleNotFoundError):
+    Display = None
 
 class OpencvWriter():
     """Pipes to a video file using opencv
@@ -162,6 +166,10 @@ class Stream():
         if self.file_name is not None:
             self.w = Writer(klass=writer_class, que=self.ques['file'], movie_params=movie_params)
         if display:
+            if Display is None:
+                raise RuntimeError(
+                    "display=True needs tkinter, which this Python does not have "
+                    "(on Homebrew: brew install python-tk)")
             d = Display(lambda: self.ques['display'].get(block=False))
 
     def end(self):

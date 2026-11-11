@@ -29,5 +29,9 @@ if sys.platform == 'win32':
 		pass
 
 from .cameras import Camera, cam_count
-from .ui import Display
+try:
+	from .ui import Display
+except (ImportError, ModuleNotFoundError):
+	Display = None
 from .io import Stream
+
