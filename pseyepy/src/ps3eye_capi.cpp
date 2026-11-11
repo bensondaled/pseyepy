@@ -27,6 +27,9 @@
  **/
 
 
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 #include "ps3eye_capi.h"
 #include "ps3eye.h"
 
@@ -186,7 +189,12 @@ ps3eye_grab_frame(int id, unsigned char* frame)
         return 0;
     }
 
+	// getFrame blocks until a frame is ready, and the debayer that follows is
+	// pure C++: holding the GIL for all of it starves every other Python
+	// thread for a whole frame interval. Release it around the call.
+	Py_BEGIN_ALLOW_THREADS
 	timestamp = eye->eye->getFrame(frame);
+	Py_END_ALLOW_THREADS
 
     return timeval2int(timestamp); // timestamp is in microseconds
 }
